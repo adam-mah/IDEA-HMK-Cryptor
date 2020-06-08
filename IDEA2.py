@@ -188,25 +188,40 @@ class IDEA_Key_Scheduler:
 
     def decryption_key_schedule(self):
         sub_keys_list = []
-        inv_sub_keys_list = [[0]*6]*8
-        inv_sub_keys_list.append([0]*4)
+        inv_sub_keys_list = [0]*52
 
         print(inv_sub_keys_list)
-        [sub_keys_list.append([int(x, 2) for x in lst]) for lst in self.sub_keys_list]
-        # [sub_keys_list.append(int(''.join([x for x in self.sub_keys_list[i]]), 2)) for i in
-        # range(len(self.sub_keys_list))]
-        # [sub_keys_list[i][j] = int(sub_keys_list[i][j],2) for i in range(8) for j in range(4)]
+
+        [[sub_keys_list.append(int(x,2)) for x in lst]for lst in self.sub_keys_list]
+        #[sub_keys_list.append([int(x, 2) for x in lst]) for lst in self.sub_keys_list]
+        #[sub_keys_list.append(int(''.join([x for x in self.sub_keys_list[i]]), 2)) for i in
+         #range(len(self.sub_keys_list))]
         print(sub_keys_list)
-        for i in range(0, ROUNDS - 1, -1):
-            pass
 
-        inv_sub_keys_list[1][4] = sub_keys_list[7][4] # 6 <- 46
-        inv_sub_keys_list[1][5] = sub_keys_list[7][5] # 5 <- 47
-        inv_sub_keys_list[0][0] = self.mulInv(sub_keys_list[8][0])  # 48
-        inv_sub_keys_list[0][1] = self.mulInv(sub_keys_list[8][1])  # 49
-        inv_sub_keys_list[0][2] = self.mulInv(sub_keys_list[8][2])  # 50
-        inv_sub_keys_list[0][3] = self.mulInv(sub_keys_list[8][3])  # 3 <- 51
+        inv_sub_keys_list[48] = self.mulInv(sub_keys_list[0])  # 48 <- 0
+        inv_sub_keys_list[49] = self.addInv(sub_keys_list[1])  # 49 <- 1
+        inv_sub_keys_list[50] = self.addInv(sub_keys_list[2])  # 50 <- 2
+        inv_sub_keys_list[51] = self.mulInv(sub_keys_list[3])  # 51 <- 3
+
+        """for i in range(0, ROUNDS - 1):
+            r = i * 6
+            inv_sub_keys_list[-2][4] = sub_keys_list[0][4]  # 46 <- 4
+            inv_sub_keys_list[-2][5] = sub_keys_list[0][5]  # 47 <- 5
+            inv_sub_keys_list[-3][0] = self.mulInv(sub_keys_list[0][5])  # 42 <- 6
+            inv_sub_keys_list[-3][2] = self.addInv(sub_keys_list[0][5]) # 44 <- 7
+            inv_sub_keys_list[-3][1] = self.addInv(sub_keys_list[0][5])  # 43 <- 8
+            inv_sub_keys_list[-3][4] = self.mulInv(sub_keys_list[0][5])  # 45 <- 9
+
+            pass"""
+
+        inv_sub_keys_list[6] = sub_keys_list[46]  # 6 <- 46
+        inv_sub_keys_list[5] = sub_keys_list[47]  # 5 <- 47
+        inv_sub_keys_list[0] = self.mulInv(sub_keys_list[48])  # 0 <- 48
+        inv_sub_keys_list[1] = self.mulInv(sub_keys_list[49])  # 1 <- 49
+        inv_sub_keys_list[2] = self.mulInv(sub_keys_list[50])  # 2 <- 50
+        inv_sub_keys_list[3] = self.mulInv(sub_keys_list[51])  # 3 <- 51
         print(inv_sub_keys_list)
+
 
 def get_pt_bin_block_list(plain_text):  # 4 Blocks 16 bit each
     pt_block_list = []
