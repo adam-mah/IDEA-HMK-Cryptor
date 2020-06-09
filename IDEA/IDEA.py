@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import sympy
-import binascii
+#from IDEA import IDEA_Key_Scheduler
 
 KEY_SIZE = 128
 BLOCK_SIZE = 16  # Plaintext = 64bits
@@ -43,14 +43,14 @@ class IDEA:
                 The input to the next round is Step 11 || Step 13 || Step 12 || Step 14, which becomes X1 || X2 || X3 || X4.
                 This swap between 12 and 13 takes place after each complete round, except the last complete round (4th round),
                 where the input to the final half round is Step 11 || Step 12 || Step 13 || Step 14.
-                :param text: Cipher/Plain text
+                :param text: Cipher/Plain binary text
                 :param sub_keys: Decryption/Encryption Sub Keys
                 :return: ciphered/deciphered text
                 """
         # THIS TEST SAMPLE OUTPUT MUST MATCH https://www.geeksforgeeks.org/simplified-international-data-encryption-algorithm-idea/ output
         X = text
         K = sub_keys
-        print("Plaintext binary:" + str(X))
+        print("Binary text:" + str(X))
 
         # Print sub keys
         """
@@ -124,13 +124,22 @@ class IDEA:
 
         return cipher
 
-    def encrypt(self, plain_text):
-        return self.calculate_cipher(self.enc_sub_keys, ["0000010100110010", "0000101001100100", "0001010011001000",
-                                                         "0001100111111010"])
+    def encrypt(self, plain_text='', encType=str):
+        if encType == int:
+            pass
+        else:
+            plain_text = get_pt_bin_block_list(plain_text)
+        return self.calculate_cipher(self.enc_sub_keys, plain_text)
 
-    def decrypt(self, cipher_text):
-        return self.calculate_cipher(self.dec_sub_keys, ["0110010110111110", "1000011111100111", "1010001001010011",
-                                                         "1000101011101101"])
+    def decrypt(self, cipher_text=''):
+        cipher_text = str(bin(int(cipher_text, 16)))[2:]
+        cipher_text = ''.join(['0' for l in range(64 - len(cipher_text))]) + cipher_text
+        temp_list = []
+        for index in range(0, len(cipher_text), 16):
+            temp_list.append(cipher_text[index: index + 16])  # Divide plain text into bytes
+        cipher_text = temp_list
+
+        return bytes.fromhex(self.calculate_cipher(self.dec_sub_keys, cipher_text)).decode('utf-8')
 
 
 """ PSEUDO for Key-Scheduler
@@ -149,8 +158,7 @@ Sub 5 1111 1101 0110 0111 0111 0001
 3. Shift main key = new key
 4. Take 6-len(new key) from shifted key and add to the end of new-sub-key2
 5. repeat from 2
-By Fucking Adam
-"""
+By Fucking Adam """
 
 
 class IDEA_Key_Scheduler:
@@ -193,7 +201,6 @@ class IDEA_Key_Scheduler:
     def decryption_key_schedule(self):
         sub_keys_list = []
         inv_sub_keys_list = [0] * 52
-
         [[sub_keys_list.append(int(x, 2)) for x in lst] for lst in self.enc_sub_keys_list]
 
         p = 0
@@ -212,11 +219,11 @@ class IDEA_Key_Scheduler:
             inv_sub_keys_list[r + 3] = self.mulInv(sub_keys_list[p + 5])  # 45 <- 9
             p += 6
 
-        inv_sub_keys_list[6] = sub_keys_list[46]  # 6 <- 46
+        inv_sub_keys_list[4] = sub_keys_list[46]  # 6 <- 46
         inv_sub_keys_list[5] = sub_keys_list[47]  # 5 <- 47
         inv_sub_keys_list[0] = self.mulInv(sub_keys_list[48])  # 0 <- 48
-        inv_sub_keys_list[1] = self.mulInv(sub_keys_list[49])  # 1 <- 49
-        inv_sub_keys_list[2] = self.mulInv(sub_keys_list[50])  # 2 <- 50
+        inv_sub_keys_list[1] = self.addInv(sub_keys_list[49])  # 1 <- 49
+        inv_sub_keys_list[2] = self.addInv(sub_keys_list[50])  # 2 <- 50
         inv_sub_keys_list[3] = self.mulInv(sub_keys_list[51])  # 3 <- 51
 
         temp = []
@@ -268,12 +275,14 @@ def get_key_bin_list(key_int):
 
     return key_bin_list
 
+KEY = int('006400c8012c019001f4025802bc0320', 16)
+plain_text = 'Adam'
 
-# '006400c8012c019001f4025802bc0320'
-cryptor = IDEA(int('006400c8012c019001f4025802bc0320', 16))  # Initialize cryptor with 128bit key
-# cryptor = IDEA(int('65be87e7a2538aed', 16))
-cipher_text = cryptor.encrypt('adam')
-cryptor.decrypt('zbe')
+cryptor = IDEA()  # Initialize cryptor with 128bit key
+cipher_text = cryptor.encrypt(plain_text)
+deciphered_text = cryptor.decrypt(cipher_text)
+print(
+    "Original text = {0}\nCiphered text = {1}\nDeciphered text = {2}".format(plain_text, cipher_text, deciphered_text))
 
 """setKey(006400c8012c019001f4025802bc0320)
 encryptIDEA(05320a6414c819fa)
