@@ -14,7 +14,7 @@ class IDEA:
     def __init__(self, key=random.getrandbits(KEY_SIZE)):
         self.key = key  # random.getrandbits(KEY_SIZE)
         self.scheduler = IDEA_Key_Scheduler(self.key)
-        self.sub_keys = self.schedule_keys()
+        self.enc_sub_keys, self.dec_sub_keys = self.schedule_keys()
         print(self.key)
 
         self.mul = lambda x, y: int(np.mod(x * y, 2 ** BLOCK_SIZE + 1))
@@ -22,36 +22,34 @@ class IDEA:
         self.xor = lambda x, y: x ^ y
 
     def schedule_keys(self):  # Prepares all sub keys for the rounds
-        return self.scheduler.encryption_key_schedule()
+        return self.scheduler.encryption_key_schedule(), self.scheduler.decryption_key_schedule()
 
-    def encrypt(self, plain_text):
+    def calculate_cipher(self, sub_keys, text):
         """
-        X1 * K1
-        X2 + K2
-        X3 + K3
-        X4 * K4
-        Step 1 ^ Step 3
-        Step 2 ^ Step 4
-        Step 5 * K5
-        Step 6 + Step 7
-        Step 8 * K6
-        Step 7 + Step 9
-        Step 1 ^ Step 9
-        Step 3 ^ Step 9
-        Step 2 ^ Step 10
-        Step 4 ^ Step 10
-        The input to the next round is Step 11 || Step 13 || Step 12 || Step 14, which becomes X1 || X2 || X3 || X4.
-        This swap between 12 and 13 takes place after each complete round, except the last complete round (4th round),
-        where the input to the final half round is Step 11 || Step 12 || Step 13 || Step 14.
-        :param plain_text:
-        :return:
-        """
+                X1 * K1
+                X2 + K2
+                X3 + K3
+                X4 * K4
+                Step 1 ^ Step 3
+                Step 2 ^ Step 4
+                Step 5 * K5
+                Step 6 + Step 7
+                Step 8 * K6
+                Step 7 + Step 9
+                Step 1 ^ Step 9
+                Step 3 ^ Step 9
+                Step 2 ^ Step 10
+                Step 4 ^ Step 10
+                The input to the next round is Step 11 || Step 13 || Step 12 || Step 14, which becomes X1 || X2 || X3 || X4.
+                This swap between 12 and 13 takes place after each complete round, except the last complete round (4th round),
+                where the input to the final half round is Step 11 || Step 12 || Step 13 || Step 14.
+                :param text: Cipher/Plain text
+                :param sub_keys: Decryption/Encryption Sub Keys
+                :return: ciphered/deciphered text
+                """
         # THIS TEST SAMPLE OUTPUT MUST MATCH https://www.geeksforgeeks.org/simplified-international-data-encryption-algorithm-idea/ output
-
-        # plain_text = str(int('05320a6414c819fa', 16))
-        # X = get_pt_bin_block_list(plain_text)
-        X = ["0000010100110010", "0000101001100100", "0001010011001000", "0001100111111010"]
-        K = self.sub_keys
+        X = text
+        K = sub_keys
         print("Plaintext binary:" + str(X))
 
         # Print sub keys
@@ -122,12 +120,17 @@ class IDEA:
         result.append(self.mul(int(X[3], 2), int(K[ROUNDS - 1][3], 2)))
 
         cipher = ''.join([str(hex(int(x)))[2:] for x in result])
-        print("Final Cipher: " + cipher + "\n---------------")
+        print("Final Cipher/Decipher: " + cipher + "\n---------------")
 
         return cipher
 
+    def encrypt(self, plain_text):
+        return self.calculate_cipher(self.enc_sub_keys, ["0000010100110010", "0000101001100100", "0001010011001000",
+                                                         "0001100111111010"])
+
     def decrypt(self, cipher_text):
-        self.scheduler.decryption_key_schedule()
+        return self.calculate_cipher(self.dec_sub_keys, ["0110010110111110", "1000011111100111", "1010001001010011",
+                                                         "1000101011101101"])
 
 
 """ PSEUDO for Key-Scheduler
@@ -153,17 +156,18 @@ By Fucking Adam
 class IDEA_Key_Scheduler:
     def __init__(self, key_int):
         self.key_int = key_int
-        self.sub_keys_list = []
+        self.enc_sub_keys_list = []
+        self.dec_sub_keys_list = []
         self.shift = lambda val, r_bits, max_bits: \
             (val << r_bits % max_bits) & (2 ** max_bits - 1) | \
             ((val & (2 ** max_bits - 1)) >> (max_bits - (r_bits % max_bits)))
 
         self.mulInv = lambda x: sympy.mod_inverse(x, 2 ** BLOCK_SIZE + 1)
-        self.addInv = lambda x: sympy.mod_inverse(x, 2 ** BLOCK_SIZE)
+        self.addInv = lambda x: (0x10000 - x) & 0xFFFF
 
     def encryption_key_schedule(self):
         key_bin_list = get_key_bin_list(self.key_int)
-        self.sub_keys_list.append(key_bin_list[:SUB_KEYS])
+        self.enc_sub_keys_list.append(key_bin_list[:SUB_KEYS])
 
         # print("HEX New Sub key[0]: " + ' '.join([str(hex(int(elem, 2)))[2:] for elem in key_bin_list[:SUB_KEYS]]))
         to_remove = SUB_KEYS
@@ -177,42 +181,36 @@ class IDEA_Key_Scheduler:
                 self.key_int = self.shift(self.key_int, SHIFT_BITS, KEY_SIZE)  # Make new shifted key
                 key_bin_list = get_key_bin_list(self.key_int)
                 [new_sub_key.append(x) for x in key_bin_list[:SUB_KEYS - len(new_sub_key)]]
-                self.sub_keys_list.append(new_sub_key[:SUB_KEYS])
+                self.enc_sub_keys_list.append(new_sub_key[:SUB_KEYS])
             else:
                 new_sub_key = temp[:6]
                 to_remove = 6
-                self.sub_keys_list.append(new_sub_key[:SUB_KEYS])
+                self.enc_sub_keys_list.append(new_sub_key[:SUB_KEYS])
 
-        self.sub_keys_list[-1] = self.sub_keys_list[-1][0:4]
-        return self.sub_keys_list
+        self.enc_sub_keys_list[-1] = self.enc_sub_keys_list[-1][0:4]
+        return self.enc_sub_keys_list
 
     def decryption_key_schedule(self):
         sub_keys_list = []
-        inv_sub_keys_list = [0]*52
+        inv_sub_keys_list = [0] * 52
 
-        print(inv_sub_keys_list)
+        [[sub_keys_list.append(int(x, 2)) for x in lst] for lst in self.enc_sub_keys_list]
 
-        [[sub_keys_list.append(int(x,2)) for x in lst]for lst in self.sub_keys_list]
-        #[sub_keys_list.append([int(x, 2) for x in lst]) for lst in self.sub_keys_list]
-        #[sub_keys_list.append(int(''.join([x for x in self.sub_keys_list[i]]), 2)) for i in
-         #range(len(self.sub_keys_list))]
-        print(sub_keys_list)
-
-        inv_sub_keys_list[48] = self.mulInv(sub_keys_list[0])  # 48 <- 0
-        inv_sub_keys_list[49] = self.addInv(sub_keys_list[1])  # 49 <- 1
-        inv_sub_keys_list[50] = self.addInv(sub_keys_list[2])  # 50 <- 2
-        inv_sub_keys_list[51] = self.mulInv(sub_keys_list[3])  # 51 <- 3
-
-        """for i in range(0, ROUNDS - 1):
+        p = 0
+        inv_sub_keys_list[48] = self.mulInv(sub_keys_list[p])  # 48 <- 0
+        inv_sub_keys_list[49] = self.addInv(sub_keys_list[p + 1])  # 49 <- 1
+        inv_sub_keys_list[50] = self.addInv(sub_keys_list[p + 2])  # 50 <- 2
+        inv_sub_keys_list[51] = self.mulInv(sub_keys_list[p + 3])  # 51 <- 3
+        p += 4
+        for i in reversed(range(1, ROUNDS - 1)):
             r = i * 6
-            inv_sub_keys_list[-2][4] = sub_keys_list[0][4]  # 46 <- 4
-            inv_sub_keys_list[-2][5] = sub_keys_list[0][5]  # 47 <- 5
-            inv_sub_keys_list[-3][0] = self.mulInv(sub_keys_list[0][5])  # 42 <- 6
-            inv_sub_keys_list[-3][2] = self.addInv(sub_keys_list[0][5]) # 44 <- 7
-            inv_sub_keys_list[-3][1] = self.addInv(sub_keys_list[0][5])  # 43 <- 8
-            inv_sub_keys_list[-3][4] = self.mulInv(sub_keys_list[0][5])  # 45 <- 9
-
-            pass"""
+            inv_sub_keys_list[r + 4] = sub_keys_list[p]  # 46 <- 4
+            inv_sub_keys_list[r + 5] = sub_keys_list[p + 1]  # 47 <- 5
+            inv_sub_keys_list[r] = self.mulInv(sub_keys_list[p + 2])  # 42 <- 6
+            inv_sub_keys_list[r + 2] = self.addInv(sub_keys_list[p + 3])  # 44 <- 7
+            inv_sub_keys_list[r + 1] = self.addInv(sub_keys_list[p + 4])  # 43 <- 8
+            inv_sub_keys_list[r + 3] = self.mulInv(sub_keys_list[p + 5])  # 45 <- 9
+            p += 6
 
         inv_sub_keys_list[6] = sub_keys_list[46]  # 6 <- 46
         inv_sub_keys_list[5] = sub_keys_list[47]  # 5 <- 47
@@ -220,7 +218,15 @@ class IDEA_Key_Scheduler:
         inv_sub_keys_list[1] = self.mulInv(sub_keys_list[49])  # 1 <- 49
         inv_sub_keys_list[2] = self.mulInv(sub_keys_list[50])  # 2 <- 50
         inv_sub_keys_list[3] = self.mulInv(sub_keys_list[51])  # 3 <- 51
-        print(inv_sub_keys_list)
+
+        temp = []
+        for key_value in inv_sub_keys_list:
+            temp.append(str(bin(key_value))[2:])
+        for i in range(0, 48, 6):
+            self.dec_sub_keys_list.append(temp[i:i + 6])
+        self.dec_sub_keys_list.append(temp[48:52])
+
+        return self.dec_sub_keys_list
 
 
 def get_pt_bin_block_list(plain_text):  # 4 Blocks 16 bit each
@@ -265,5 +271,19 @@ def get_key_bin_list(key_int):
 
 # '006400c8012c019001f4025802bc0320'
 cryptor = IDEA(int('006400c8012c019001f4025802bc0320', 16))  # Initialize cryptor with 128bit key
+# cryptor = IDEA(int('65be87e7a2538aed', 16))
 cipher_text = cryptor.encrypt('adam')
 cryptor.decrypt('zbe')
+
+"""setKey(006400c8012c019001f4025802bc0320)
+encryptIDEA(05320a6414c819fa)
+  Round 1	X = 0532 0a64 14c8 19fa ; SK = 0064 00c8 012c 0190 01f4 0258 
+  Round 2	X = 0746 1534 0c68 913c ; SK = 02bc 0320 9002 5803 2003 e804 
+  Round 3	X = f1b7 8e88 78e2 4170 ; SK = b005 7806 4000 c801 0640 07d0 
+  Round 4	X = ec90 b610 aa33 22ec ; SK = 0960 0af0 0c80 0190 0320 04b0 
+  Round 5	X = e262 e986 4690 171a ; SK = a012 c015 e019 0003 2006 4009 
+  Round 6	X = f0d8 4b29 743f 98ea ; SK = 600c 800f 2bc0 3200 0640 0c80 
+  Round 7	X = 22a1 529b fe1f a304 ; SK = 12c0 1900 1f40 2580 000c 8019 
+  Round 8	X = a151 f439 81d9 1462 ; SK = 0025 8032 003e 804b 0057 8064 
+  Output	X = ecda 3ce7 3e53 a60c ; SK = 3200 4b00 6400 7d00 0000 0000 
+  = 65be87e7a2538aed"""
