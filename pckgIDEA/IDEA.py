@@ -1,9 +1,6 @@
 import random
 import numpy as np
 from pckgIDEA.IDEA_Key_Scheduler import IDEA_Key_Scheduler
-import sympy
-
-# from pckgIDEA import IDEA_Key_Scheduler
 
 KEY_SIZE = 128
 BLOCK_SIZE = 16  # Plaintext = 64bits

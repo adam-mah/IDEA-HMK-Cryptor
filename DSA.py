@@ -151,13 +151,10 @@ class DSA:
 
 
 if __name__ == "__main__":
-    text = "zb zbe rocks"
-
     signer = DSA()
-    M = "zbraaa"#str.encode(text, "ascii")
+    M = input("Insert a message to sign: ")
     r, s = signer.sign(M)
     p, q, g, pkey = signer.get_keys()
-    # print(M, r, s, p, q, g, y, x, sep='\n')
 
     print("Message: {0}\nSignature pair:\nr sign: {1}\ns sign: {2}\nKey values:\np: {3}\nq: {4}\ng: {5}\n"
           "Public key y: {6}".format(M, r, s, p, q, g, pkey))

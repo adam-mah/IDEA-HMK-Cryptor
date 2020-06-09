@@ -11,8 +11,9 @@ cipher_text = cryptor.encrypt(plain_text)
 deciphered_text = cryptor.decrypt(cipher_text)
 print(
     "Original text = {0}\nCiphered text = {1}\nDeciphered text = {2}".format(plain_text, cipher_text, deciphered_text))
-print("--------------------------")
+
 # HM-Knapsack Example
+print("\n\n---------HM-Knapsack---------")
 MAX_CHARS = 128
 while True:
     plain_text = 'zBRA'#input("Insert a message to encrypt: ")
@@ -27,8 +28,9 @@ cipher_text = hmk_encrypt(plain_text, b)  # Encrypted plain text
 decrypted_cipher_text = hmk_decrypt(cipher_text, w, q, r)  # Decrypted cipher
 print("w: {0}\nq: {1}\nr: {2}".format(w, q, r))
 print("Encrypted message: {0} \nDecrypted message: {1}".format(cipher_text, decrypted_cipher_text))
-print("--------------------------")
+
 # DSA
+print("\n\n---------DSA---------")
 signer = DSA()
 M = "zbraaa"  # str.encode(text, "ascii")
 r, s = signer.sign(M)
