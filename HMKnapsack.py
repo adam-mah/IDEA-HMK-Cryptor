@@ -88,11 +88,11 @@ def hmk_decrypt(cipher_text, w, q, r):
     plain_text_bits = []
     for i in w[::-1]:
         if i <= temp:
-            print("{0} - {1} = {2}".format(temp, i, temp-i))  # Calculations stop when temp = 0
+            #print("{0} - {1} = {2}".format(temp, i, temp-i))  # Calculations stop when temp = 0
             temp = temp - i
             plain_text_bits.insert(0, 1)
         else:
-            print("Skip " + str(i))
+            #print("Skip " + str(i))
             plain_text_bits.insert(0, 0)
 
     return get_plain_text(plain_text_bits)

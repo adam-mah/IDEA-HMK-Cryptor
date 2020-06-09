@@ -1,4 +1,4 @@
-from IDEA.IDEA import get_key_bin_list
+import sympy
 
 KEY_SIZE = 128
 BLOCK_SIZE = 16  # Plaintext = 64bits
@@ -22,8 +22,7 @@ Sub 5 1111 1101 0110 0111 0111 0001
 3. Shift main key = new key
 4. Take 6-len(new key) from shifted key and add to the end of new-sub-key2
 5. repeat from 2
-By Adam
-"""
+By Adam"""
 
 
 class IDEA_Key_Scheduler:
@@ -99,3 +98,25 @@ class IDEA_Key_Scheduler:
         self.dec_sub_keys_list.append(temp[48:52])
 
         return self.dec_sub_keys_list
+
+
+def get_key_bin_list(key_int):
+    """
+    Convert INT to binary string of key size
+    KEY_SIZE = BLOCK_SIZE * 8(num of keys)
+    :param key_int: Key in INT format
+    :return: Binary key list divided to 8 bytes
+    """
+    key_bin = str(bin(key_int))[2:]
+    key_bin = ''.join(['0' for i in range(0, BLOCK_SIZE * 8 - len(key_bin)) if
+                       len(key_bin) < BLOCK_SIZE * 8]) + key_bin  # Add missing zeros for prefix to binary key string
+
+    key_bin_list = []
+    for index in range(0, len(key_bin), BLOCK_SIZE):
+        key_bin_list.append(key_bin[index: index + BLOCK_SIZE])  # Divide key into 8 sub keys
+
+    return key_bin_list
+
+
+if __name__ == "__main__":
+    print('Please run IDEA.py or MainProgram.py')
