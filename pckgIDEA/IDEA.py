@@ -123,8 +123,9 @@ class IDEA:
 
         return cipher
 
-    def encrypt(self, plain_text=''):
-        plain_text = plain_text.encode().hex()
+    def encrypt(self, plain_text='', enc=str):
+        if enc != hex:
+            plain_text = plain_text.encode().hex()
         plain_text = get_bin_block(plain_text)
         return self.calculate_cipher(self.enc_sub_keys, plain_text)
 
@@ -146,7 +147,7 @@ def get_bin_block(plain_text):  # 4 Blocks 16 bit each
 
 if __name__ == "__main__":
     KEY = int('006400c8012c019001f4025802bc0320', 16)
-    plain_text = 'a6b23421'
+    plain_text = 'zbeeanaa'
     cryptor = IDEA()  # Initialize cryptor with 128bit key
     cipher_text = cryptor.encrypt(plain_text)
     deciphered_text = cryptor.decrypt(cipher_text)
