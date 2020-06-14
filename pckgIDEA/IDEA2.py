@@ -1,7 +1,7 @@
-import binascii
 import random
 import numpy as np
-from pckgIDEA.IDEA_Key_Scheduler import IDEA_Key_Scheduler
+import sympy
+#from IDEA import IDEA_Key_Scheduler
 
 KEY_SIZE = 128
 BLOCK_SIZE = 16  # Plaintext = 64bits
@@ -15,6 +15,7 @@ class IDEA:
         self.key = key  # random.getrandbits(KEY_SIZE)
         self.scheduler = IDEA_Key_Scheduler(self.key)
         self.enc_sub_keys, self.dec_sub_keys = self.schedule_keys()
+        print(self.key)
 
         self.mul = lambda x, y: int(np.mod(x * y, 2 ** BLOCK_SIZE + 1))
         self.add = lambda x, y: int(np.mod(x + y, 2 ** BLOCK_SIZE))
@@ -63,13 +64,13 @@ class IDEA:
         step = ['0'] * 14
         for i in range(0, ROUNDS - 1):
             # Input print
-            # print("Round [" + str(i + 1) + "] BIN input " + str(X))
-            # print("Round [" + str(i + 1) + "] DEC input " + str([int(x, 2) for x in X]))
-            # print("Round [" + str(i + 1) + "] HEX input " + ' '.join([str(hex(int(x, 2)))[2:] for x in X]))
+            print("Round [" + str(i + 1) + "] BIN input " + str(X))
+            print("Round [" + str(i + 1) + "] DEC input " + str([int(x, 2) for x in X]))
+            print("Round [" + str(i + 1) + "] HEX input " + ' '.join([str(hex(int(x, 2)))[2:] for x in X]))
             # Sub Key print
-            # print("Round [" + str(i + 1) + "] BIN sub-key " + str(K[i]))
-            # print("Round [" + str(i + 1) + "] DEC sub-key " + str([int(k, 2) for k in K[i]]))
-            # print("Round [" + str(i + 1) + "] HEX sub-key " + ' '.join([str(hex(int(k, 2)))[2:] for k in K[i]]))
+            print("Round [" + str(i + 1) + "] BIN sub-key " + str(K[i]))
+            print("Round [" + str(i + 1) + "] DEC sub-key " + str([int(k, 2) for k in K[i]]))
+            print("Round [" + str(i + 1) + "] HEX sub-key " + ' '.join([str(hex(int(k, 2)))[2:] for k in K[i]]))
             step[0] = (self.mul(int(X[0], 2), int(K[i][0], 2)))
             step[1] = (self.add(int(X[1], 2), int(K[i][1], 2)))
             step[2] = (self.add(int(X[2], 2), int(K[i][2], 2)))
@@ -93,10 +94,10 @@ class IDEA:
             for j in range(0, len(X)):
                 X[j] = '0' * (4 - len(X[j])) + X[j]
 
-            # print("Round [" + str(i + 1) + "] BIN output " + str(X))
-            # print("Round [" + str(i + 1) + "] DEC output " + str([int(x, 2) for x in X]))
-        # print("Round [" + str(i + 1) + "] HEX output " + ' '.join([str(hex(int(x, 2)))[2:] for x in X])
-        #                  + "\n---------------")
+            print("Round [" + str(i + 1) + "] BIN output " + str(X))
+            print("Round [" + str(i + 1) + "] DEC output " + str([int(x, 2) for x in X]))
+            print("Round [" + str(i + 1) + "] HEX output " + ' '.join([str(hex(int(x, 2)))[2:] for x in X])
+                  + "\n---------------")
 
         """X1 * K1
            X2 + K2
@@ -104,14 +105,14 @@ class IDEA:
            X4 * K4"""
         X = [str(bin(int(step[10])))[2:], str(bin(int(step[12])))[2:], str(bin(int(step[11])))[2:],
              str(bin(int(step[13])))[2:]]
-        # print("Round [" + str(ROUNDS - 0.5) + "] BIN input " + str(X))
-        # print("Round [" + str(ROUNDS - 0.5) + "] DEC input " + str([int(x, 2) for x in X]))
-        # print("Round [" + str(ROUNDS - 0.5) + "] HEX input " + ' '.join([str(hex(int(x, 2)))[2:] for x in X]))
+        print("Round [" + str(ROUNDS - 0.5) + "] BIN input " + str(X))
+        print("Round [" + str(ROUNDS - 0.5) + "] DEC input " + str([int(x, 2) for x in X]))
+        print("Round [" + str(ROUNDS - 0.5) + "] HEX input " + ' '.join([str(hex(int(x, 2)))[2:] for x in X]))
         # Sub Key print
-        # print("Round [" + str(ROUNDS - 0.5) + "] BIN sub-key " + str(K[i]))
-        # print("Round [" + str(ROUNDS - 0.5) + "] DEC sub-key " + str([int(k, 2) for k in K[i]]))
-        # print("Round [" + str(ROUNDS - 0.5) + "] HEX sub-key " + ' '.join(
-        # [str(hex(int(k, 2)))[2:] for k in K[ROUNDS - 1]]))
+        print("Round [" + str(ROUNDS - 0.5) + "] BIN sub-key " + str(K[i]))
+        print("Round [" + str(ROUNDS - 0.5) + "] DEC sub-key " + str([int(k, 2) for k in K[i]]))
+        print("Round [" + str(ROUNDS - 0.5) + "] HEX sub-key " + ' '.join(
+            [str(hex(int(k, 2)))[2:] for k in K[ROUNDS - 1]]))
         result = []
         result.append(self.mul(int(X[0], 2), int(K[ROUNDS - 1][0], 2)))
         result.append(self.add(int(X[1], 2), int(K[ROUNDS - 1][1], 2)))
@@ -123,36 +124,165 @@ class IDEA:
 
         return cipher
 
-    def encrypt(self, plain_text=''):
-        plain_text = plain_text.encode().hex()
-        plain_text = get_bin_block(plain_text)
+    def encrypt(self, plain_text='', encType=str):
+        if encType == int:
+            pass
+        else:
+            plain_text = get_pt_bin_block_list(plain_text)
         return self.calculate_cipher(self.enc_sub_keys, plain_text)
 
     def decrypt(self, cipher_text=''):
-        cipher_text = get_bin_block(cipher_text)
-        return bytes.fromhex(self.calculate_cipher(self.dec_sub_keys, cipher_text)).decode()
+        cipher_text = str(bin(int(cipher_text, 16)))[2:]
+        cipher_text = ''.join(['0' for l in range(64 - len(cipher_text))]) + cipher_text
+        temp_list = []
+        for index in range(0, len(cipher_text), 16):
+            temp_list.append(cipher_text[index: index + 16])  # Divide plain text into bytes
+        cipher_text = temp_list
+
+        return bytes.fromhex(self.calculate_cipher(self.dec_sub_keys, cipher_text)).decode('utf-8')
 
 
-def get_bin_block(plain_text):  # 4 Blocks 16 bit each
-    plain_text = str(bin(int(plain_text, 16))[2:])
-    print(plain_text)
-    plain_text = ''.join(['0' for l in range(64 - len(plain_text))]) + plain_text
+""" PSEUDO for Key-Scheduler
+Key1 1101 1100 0110 1111 0011 1111 0101 1001
+Shifted Key1 0001 1011 1100 1111 1101 0110 0111 0111
+Shifted Key2 1111 0011 1111 0101 1001 1101 1100 0110
+Shifted Key3 1111 1101 0110 0111 0111 0001 1011 1100
+Sub 1 1101 1100 0110 1111 0011 1111
+Sub 2 0101 1001 0001 1011 1100 1111
+Sub 3 1101 0110 0111 0111 1111 0011
+Sub 4 1111 0101 1001 1101 1100 0110
+Sub 5 1111 1101 0110 0111 0111 0001
+0. main-sub-key = main key
+1. Take 6 as sub-key from original key 
+2. put the remaining into new-sub-key2 (Up to 6 Max)
+3. Shift main key = new key
+4. Take 6-len(new key) from shifted key and add to the end of new-sub-key2
+5. repeat from 2
+By Fucking Adam """
+
+
+class IDEA_Key_Scheduler:
+    def __init__(self, key_int):
+        self.key_int = key_int
+        self.enc_sub_keys_list = []
+        self.dec_sub_keys_list = []
+        self.shift = lambda val, r_bits, max_bits: \
+            (val << r_bits % max_bits) & (2 ** max_bits - 1) | \
+            ((val & (2 ** max_bits - 1)) >> (max_bits - (r_bits % max_bits)))
+
+        self.mulInv = lambda x: sympy.mod_inverse(x, 2 ** BLOCK_SIZE + 1)
+        self.addInv = lambda x: (0x10000 - x) & 0xFFFF
+
+    def encryption_key_schedule(self):
+        key_bin_list = get_key_bin_list(self.key_int)
+        self.enc_sub_keys_list.append(key_bin_list[:SUB_KEYS])
+
+        # print("HEX New Sub key[0]: " + ' '.join([str(hex(int(elem, 2)))[2:] for elem in key_bin_list[:SUB_KEYS]]))
+        to_remove = SUB_KEYS
+        for i in range(0, ROUNDS - 1):
+            temp = key_bin_list
+            del temp[:to_remove]
+            if to_remove != 0:
+                new_sub_key = temp
+                to_remove = SUB_KEYS - len(new_sub_key)
+
+                self.key_int = self.shift(self.key_int, SHIFT_BITS, KEY_SIZE)  # Make new shifted key
+                key_bin_list = get_key_bin_list(self.key_int)
+                [new_sub_key.append(x) for x in key_bin_list[:SUB_KEYS - len(new_sub_key)]]
+                self.enc_sub_keys_list.append(new_sub_key[:SUB_KEYS])
+            else:
+                new_sub_key = temp[:6]
+                to_remove = 6
+                self.enc_sub_keys_list.append(new_sub_key[:SUB_KEYS])
+
+        self.enc_sub_keys_list[-1] = self.enc_sub_keys_list[-1][0:4]
+        return self.enc_sub_keys_list
+
+    def decryption_key_schedule(self):
+        sub_keys_list = []
+        inv_sub_keys_list = [0] * 52
+        [[sub_keys_list.append(int(x, 2)) for x in lst] for lst in self.enc_sub_keys_list]
+
+        p = 0
+        inv_sub_keys_list[48] = self.mulInv(sub_keys_list[p])  # 48 <- 0
+        inv_sub_keys_list[49] = self.addInv(sub_keys_list[p + 1])  # 49 <- 1
+        inv_sub_keys_list[50] = self.addInv(sub_keys_list[p + 2])  # 50 <- 2
+        inv_sub_keys_list[51] = self.mulInv(sub_keys_list[p + 3])  # 51 <- 3
+        p += 4
+        for i in reversed(range(1, ROUNDS - 1)):
+            r = i * 6
+            inv_sub_keys_list[r + 4] = sub_keys_list[p]  # 46 <- 4
+            inv_sub_keys_list[r + 5] = sub_keys_list[p + 1]  # 47 <- 5
+            inv_sub_keys_list[r] = self.mulInv(sub_keys_list[p + 2])  # 42 <- 6
+            inv_sub_keys_list[r + 2] = self.addInv(sub_keys_list[p + 3])  # 44 <- 7
+            inv_sub_keys_list[r + 1] = self.addInv(sub_keys_list[p + 4])  # 43 <- 8
+            inv_sub_keys_list[r + 3] = self.mulInv(sub_keys_list[p + 5])  # 45 <- 9
+            p += 6
+
+        inv_sub_keys_list[4] = sub_keys_list[46]  # 6 <- 46
+        inv_sub_keys_list[5] = sub_keys_list[47]  # 5 <- 47
+        inv_sub_keys_list[0] = self.mulInv(sub_keys_list[48])  # 0 <- 48
+        inv_sub_keys_list[1] = self.addInv(sub_keys_list[49])  # 1 <- 49
+        inv_sub_keys_list[2] = self.addInv(sub_keys_list[50])  # 2 <- 50
+        inv_sub_keys_list[3] = self.mulInv(sub_keys_list[51])  # 3 <- 51
+
+        temp = []
+        for key_value in inv_sub_keys_list:
+            temp.append(str(bin(key_value))[2:])
+        for i in range(0, 48, 6):
+            self.dec_sub_keys_list.append(temp[i:i + 6])
+        self.dec_sub_keys_list.append(temp[48:52])
+
+        return self.dec_sub_keys_list
+
+
+def get_pt_bin_block_list(plain_text):  # 4 Blocks 16 bit each
+    pt_block_list = []
+
+    temp = ' '.join(item[2:] for item in map(bin, plain_text.encode('ascii')))  # Binary plain text string
+
     temp_list = []
-    for index in range(0, len(plain_text), 16):
-        temp_list.append(plain_text[index: index + 16])  # Divide plain text into bytes
-    plain_text = temp_list
-    return plain_text
+    for index in range(0, len(temp), 8):
+        temp_list.append(temp[index: index + 8])  # Divide plain text into bytes
+    for i in range(len(temp_list)):
+        temp_list[i] = temp_list[i].replace(" ", "")  # Remove white spaces from bytes
+        temp_list[i] = ''.join(['0' * (8 - len(temp_list[i])) if len(temp_list[i]) < 8 else '']) + temp_list[i]  # Add
+        # missing zeros for prefix to binary key string making each char 8 bits
+
+    for i in range(8 - len(temp_list)):  # Expand list to 8 bytes(64bits)
+        temp_list.insert(0, '0' * 8)
+    ########################
+    for i in range(0, len(temp_list), 2):  # Combine every 2 bytes to form 16 bits blocks
+        pt_block_list.append(''.join([s for s in temp_list[i:i + 2]]))
+
+    return pt_block_list
 
 
-if __name__ == "__main__":
-    KEY = int('006400c8012c019001f4025802bc0320', 16)
-    plain_text = 'a6b23421'
-    cryptor = IDEA()  # Initialize cryptor with 128bit key
-    cipher_text = cryptor.encrypt(plain_text)
-    deciphered_text = cryptor.decrypt(cipher_text)
-    print(
-        "Original text = {0}\nCiphered text = {1}\nDeciphered text = {2}".format(plain_text, cipher_text,
-                                                                                 deciphered_text))
+def get_key_bin_list(key_int):
+    """
+    Convert INT to binary string of key size
+    KEY_SIZE = BLOCK_SIZE * 8(num of keys)
+    :param key_int: Key in INT format
+    :return: Binary key list divided to 8 bytes
+    """
+    key_bin = str(bin(key_int))[2:]
+    key_bin = ''.join(['0' for i in range(0, BLOCK_SIZE * 8 - len(key_bin)) if
+                       len(key_bin) < BLOCK_SIZE * 8]) + key_bin  # Add missing zeros for prefix to binary key string
+
+    key_bin_list = []
+    for index in range(0, len(key_bin), BLOCK_SIZE):
+        key_bin_list.append(key_bin[index: index + BLOCK_SIZE])  # Divide key into 8 sub keys
+
+    return key_bin_list
+
+KEY = int('006400c8012c019001f4025802bc0320', 16)
+plain_text = 'thinghr'
+
+cryptor = IDEA(KEY)  # Initialize cryptor with 128bit key
+cipher_text = cryptor.encrypt(plain_text)
+deciphered_text = cryptor.decrypt(cipher_text)
+print(
+    "Original text = {0}\nCiphered text = {1}\nDeciphered text = {2}".format(plain_text, cipher_text, deciphered_text))
 
 """setKey(006400c8012c019001f4025802bc0320)
 encryptIDEA(05320a6414c819fa)

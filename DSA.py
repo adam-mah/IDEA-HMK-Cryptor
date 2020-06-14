@@ -92,7 +92,7 @@ class DSA:
         :return: r = (gk mod p)mod q, s = [k-1(H(M)+ xr)] mod q
         """
         if type(M) != bytes:
-            M = str.encode(M, "ascii")
+            M = str.encode(str(M), "ascii")
 
         while True:
             k = randrange(2, self.q)  # generates a random signature key k, k<q
@@ -118,8 +118,9 @@ class DSA:
         :param y: Public key y= g^x mod p
         :return: Result if message is verified
         """
+
         if type(M) != bytes:
-            M = str.encode(M, "ascii")
+            M = str.encode(str(M), "ascii")
         try:
             w = sympy.mod_inverse(s, q)  # w = s-1(mod q)
         except ZeroDivisionError:
@@ -154,8 +155,8 @@ if __name__ == "__main__":
     signer = DSA()
     M = input("Insert a message to sign: ")
     r, s = signer.sign(M)
-    p, q, g, pkey = signer.get_keys()
-
+    keys = signer.get_keys()#Public keys tuple
+    p, q, g, pkey = keys
     print("Message: {0}\nSignature pair:\nr sign: {1}\ns sign: {2}\nKey values:\np: {3}\nq: {4}\ng: {5}\n"
           "Public key y: {6}".format(M, r, s, p, q, g, pkey))
     if DSA.verify(M, r, s, p, q, g, pkey):

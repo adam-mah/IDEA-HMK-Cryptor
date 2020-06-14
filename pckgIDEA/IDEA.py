@@ -1,6 +1,7 @@
-import binascii
 import random
+
 import numpy as np
+
 from pckgIDEA.IDEA_Key_Scheduler import IDEA_Key_Scheduler
 
 KEY_SIZE = 128
@@ -121,18 +122,34 @@ class IDEA:
         cipher = ''.join([str(hex(int(x)))[2:] for x in result])
         print("Final Cipher/Decipher: " + cipher + "\n---------------")
 
-        return cipher
+        return cipher  # Hex string
 
-    def encrypt(self, plain_text='', enc=str):
-        if enc != hex:
-            plain_text = plain_text.encode().hex()
-        plain_text = get_bin_block(plain_text)
+    def encrypt(self, plain_text='', is_hex=False, codec='utf-8'):
+        #if not is_hex:
+            #plain_text = plain_text.encode(codec).hex()
+        plain_text = get_pt_bin_block_list(plain_text)
+        print("ppt:" + str(plain_text))
         return self.calculate_cipher(self.enc_sub_keys, plain_text)
 
-    def decrypt(self, cipher_text=''):
+    def decrypt(self, cipher_text='', codec='utf-8', aa='ascii'):
         cipher_text = get_bin_block(cipher_text)
-        return bytes.fromhex(self.calculate_cipher(self.dec_sub_keys, cipher_text)).decode()
+        res = self.calculate_cipher(self.dec_sub_keys, cipher_text)
+        print(res)
+        res = ''.join('0' * (16 - len(res))) + res
+        return ''.join([chr(int(''.join(c), 16)) for c in zip(res[0::2],res[1::2])])
 
+
+
+def get_pt_bin_block_list(plain_text):  # 4 Blocks 16 bit each
+    pt_block_list = []
+    temp = ' '.join(bin(ord(item))[2:] for item in plain_text)
+    temp = temp.split(' ')
+    temp_list = ['0'*(8-len(item))+item for item in temp]
+    temp = ''.join(byte for byte in temp_list)
+    temp = ''.join('0' * (BLOCK_SIZE*4-len(temp))) + temp
+    [pt_block_list.append(temp[i:i+16]) for i in range(0,len(temp),16)]
+
+    return pt_block_list
 
 def get_bin_block(plain_text):  # 4 Blocks 16 bit each
     plain_text = str(bin(int(plain_text, 16))[2:])
@@ -147,13 +164,15 @@ def get_bin_block(plain_text):  # 4 Blocks 16 bit each
 
 if __name__ == "__main__":
     KEY = int('006400c8012c019001f4025802bc0320', 16)
-    plain_text = 'zbeeanaa'
+    plain_text = '1111'
+    print([hex(ord(i)) for i in plain_text])
     cryptor = IDEA()  # Initialize cryptor with 128bit key
     cipher_text = cryptor.encrypt(plain_text)
     deciphered_text = cryptor.decrypt(cipher_text)
     print(
         "Original text = {0}\nCiphered text = {1}\nDeciphered text = {2}".format(plain_text, cipher_text,
                                                                                  deciphered_text))
+    print(cryptor.key)
 
 """setKey(006400c8012c019001f4025802bc0320)
 encryptIDEA(05320a6414c819fa)
