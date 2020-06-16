@@ -50,7 +50,7 @@ class IDEA:
         # THIS TEST SAMPLE OUTPUT MUST MATCH https://www.geeksforgeeks.org/simplified-international-data-encryption-algorithm-idea/ output
         X = text
         K = sub_keys
-        print("Binary text:" + str(X))
+        #print("Binary text:" + str(X))
 
         # Print sub keys
         """
@@ -120,7 +120,7 @@ class IDEA:
         result.append(self.mul(int(X[3], 2), int(K[ROUNDS - 1][3], 2)))
 
         cipher = ''.join([str(hex(int(x)))[2:] for x in result])
-        print("Final Cipher/Decipher: " + cipher + "\n---------------")
+        #print("Final Cipher/Decipher: " + cipher + "\n---------------")
 
         return cipher  # Hex string
 
@@ -128,13 +128,11 @@ class IDEA:
         #if not is_hex:
             #plain_text = plain_text.encode(codec).hex()
         plain_text = get_pt_bin_block_list(plain_text)
-        print("ppt:" + str(plain_text))
         return self.calculate_cipher(self.enc_sub_keys, plain_text)
 
     def decrypt(self, cipher_text='', codec='utf-8', aa='ascii'):
         cipher_text = get_bin_block(cipher_text)
         res = self.calculate_cipher(self.dec_sub_keys, cipher_text)
-        print(res)
         res = ''.join('0' * (16 - len(res))) + res
         return ''.join([chr(int(''.join(c), 16)) for c in zip(res[0::2],res[1::2])])
 
@@ -153,7 +151,6 @@ def get_pt_bin_block_list(plain_text):  # 4 Blocks 16 bit each
 
 def get_bin_block(plain_text):  # 4 Blocks 16 bit each
     plain_text = str(bin(int(plain_text, 16))[2:])
-    print(plain_text)
     plain_text = ''.join(['0' for l in range(64 - len(plain_text))]) + plain_text
     temp_list = []
     for index in range(0, len(plain_text), 16):

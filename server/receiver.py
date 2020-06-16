@@ -1,5 +1,6 @@
-from DSA import DSA
-from HMKnapsack import HMKnapsack
+from Cryptors.DSA import DSA
+from Cryptors.HMKnapsack import HMKnapsack
+from pckgIDEA.IDEA import IDEA
 
 KEY_SIZE = 128
 
@@ -12,23 +13,46 @@ class Receiver():
         self.hmk_cryptor = HMKnapsack(KEY_SIZE)
 
     def send_key(self):
+        """
+        Returns HMK public key to exchange with the sender
+        :return:  HMK Public key
+        """
         print("Sending {0}...] public key to sender...".format(str(self.hmk_cryptor.get_public_key())[:10]))
         return self.hmk_cryptor.get_public_key()
 
-    def get_encryption_keys(self, ciphered_key, signed_idea, DSA_keys):
+    def exchange_keys(self, ciphered_key, signed_idea, DSA_keys):
         print("\n------RECEIVER------\n")
-        print("Received encrypted IDEA Key, decrypting...")
-        self.idea_key = self.hmk_cryptor.decrypt(ciphered_key)
-        print("Decrypted IDEA Key: " + self.idea_key)
+        print("Received encrypted IDEA Key, verifying and decrypting...")
+        self.DSA_keys = {'p': DSA_keys[0], 'q': DSA_keys[1], 'g': DSA_keys[2], 'pkey': DSA_keys[3]}
 
-        self.p, self.q, self.g, self.pkey = DSA_keys
-        self.verify_message(ciphered_key, signed_idea[0], signed_idea[1])
+        if self.verify_message(ciphered_key, signed_idea[0], signed_idea[1]):
+            idea_key = self.hmk_cryptor.decrypt(int(ciphered_key))
+            idea_key = idea_key.rstrip('\x00')
+            self.idea_cryptor = IDEA(int(idea_key))
+            print("IDEA key was exchanged and verified successfully.")
+            print("Decrypted IDEA Key: " + idea_key)
+        else:
+            print("Incorrect received IDEA key value")
 
-    def receive(self):
-        pass
+    def receive(self, M, signature):
+        print("\n------RECEIVER------")
+        print("-> Message received from sender")
+        r, s = signature
+        if self.verify_message(M, r, s):
+            decrypted_text = self.idea_cryptor.decrypt(M)
+            print("-> Verified, decrypted message: " + decrypted_text)
 
     def verify_message(self, M, r, s):
-        if DSA.verify(M, r, s, self.p, self.q, self.g, self.pkey):
-            print('Result: Verified!')
+        """
+        Verify message
+        :param M: Received message
+        :param r: signature
+        :param s: signature
+        :return: If the message is valid
+        """
+        if DSA.verify(M, r, s, self.DSA_keys['p'], self.DSA_keys['q'], self.DSA_keys['g'], self.DSA_keys['pkey']):
+            # print('Result: Verified!')
+            return True
         else:
-            print("Result: Verification failed!")
+            # print("Result: Verification failed!")
+            return False
