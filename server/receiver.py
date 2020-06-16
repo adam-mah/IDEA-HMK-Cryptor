@@ -7,6 +7,7 @@ KEY_SIZE = 128
 
 class Receiver():
     def __init__(self, socket):
+        self.rec_file = open("files/receiver_decrypted.txt", "w")
         self.socket = socket
         print("\n------RECEIVER------")
         print("Generating private and public keys...")
@@ -36,11 +37,12 @@ class Receiver():
 
     def receive(self, M, signature):
         print("\n------RECEIVER------")
-        print("-> Message received from sender")
+        print("-> Message {0} received from sender".format(M))
         r, s = signature
         if self.verify_message(M, r, s):
             decrypted_text = self.idea_cryptor.decrypt(M)
             print("-> Verified, decrypted message: " + decrypted_text)
+            self.rec_file.write(decrypted_text)
 
     def verify_message(self, M, r, s):
         """

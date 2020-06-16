@@ -21,11 +21,12 @@ class Sender:
         socket.receiver.exchange_keys(ciphered_IDEA_key, self.sign_message(ciphered_IDEA_key), self.signer.get_keys())
 
     def send(self, M):
+        print("\n------SENDER------")
         M = str(M)
         if len(M) <= 8:
             ciphered_text = self.idea_cryptor.encrypt(M)
+            print("Original message: {0}\nCiphered message: {1}".format(M, ciphered_text))
             M = (ciphered_text, self.sign_message(ciphered_text))
-            #self.socket.receiver.receive(ciphered_text, self.sign_message(ciphered_text))
             self.socket.send(M)
         else:
             print('Invalid message size, message must be shorter than 8')
@@ -33,3 +34,11 @@ class Sender:
     def sign_message(self, M):
         r, s = self.signer.sign(M)
         return r, s
+
+    def send_file(self, path):
+        in_file = open(path, "r")
+        bytes8 = in_file.read(8)
+        while bytes8:
+            self.send(bytes8)
+            bytes8 = in_file.read(8)
+        in_file.close()

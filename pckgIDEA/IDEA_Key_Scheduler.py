@@ -119,4 +119,4 @@ def get_key_bin_list(key_int):
 
 
 if __name__ == "__main__":
-    print('Please run IDEA.py or MainProgram.py')
+    print('Please run IDEA.py or samples.py')
