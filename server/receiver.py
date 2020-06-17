@@ -7,7 +7,7 @@ KEY_SIZE = 128
 
 class Receiver():
     def __init__(self, socket):
-        self.rec_file = open("files/receiver_decrypted.txt", "w")
+        self.rec_file = open("files/receiver_decrypted.txt", "w", encoding="utf-8")
         self.socket = socket
         print("\n------RECEIVER------")
         print("Generating private and public keys...")

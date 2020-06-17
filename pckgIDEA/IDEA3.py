@@ -71,10 +71,10 @@ class IDEA:
             # print("Round [" + str(i + 1) + "] BIN sub-key " + str(K[i]))
             # print("Round [" + str(i + 1) + "] DEC sub-key " + str([int(k, 2) for k in K[i]]))
             # print("Round [" + str(i + 1) + "] HEX sub-key " + ' '.join([str(hex(int(k, 2)))[2:] for k in K[i]]))
-            step[0] = (self.mul(int(X[0], 2), int(K[i][0], 2)))
-            step[1] = (self.add(int(X[1], 2), int(K[i][1], 2)))
-            step[2] = (self.add(int(X[2], 2), int(K[i][2], 2)))
-            step[3] = (self.mul(int(X[3], 2), int(K[i][3], 2)))
+            step[0] = (self.mul(X[0], int(K[i][0], 2)))
+            step[1] = (self.add(X[1], int(K[i][1], 2)))
+            step[2] = (self.add(X[2], int(K[i][2], 2)))
+            step[3] = (self.mul(X[3], int(K[i][3], 2)))
             step[4] = (self.xor(step[0], step[2]))
             step[5] = (self.xor(step[1], step[3]))
             step[6] = (self.mul(step[4], int(K[i][4], 2)))
@@ -88,7 +88,7 @@ class IDEA:
             # for y in range(14):
             #    print("Step "+str(y)+": "+str(bin(int(step[y])))[2:] + "({0})".format(int(step[y])))
 
-            X = [str(bin(int(step[10])))[2:], str(bin(int(step[11])))[2:], str(bin(int(step[12])))[2:], str(bin(int(step[13])))[2:]]  # Swap step 12 and 13
+            X = [step[10], step[11], step[12], step[13]]  # Swap step 12 and 13
 
             #for j in range(0, len(X)):
                # X[j] = '0' * (16 - len(X[j])) + X[j]
@@ -102,8 +102,7 @@ class IDEA:
            X2 + K2
            X3 + K3
            X4 * K4"""
-        X = [str(bin(int(step[10])))[2:], str(bin(int(step[12])))[2:], str(bin(int(step[11])))[2:],
-             str(bin(int(step[13])))[2:]]
+        X = [step[10], step[12], step[11], step[13]]
         # print("Round [" + str(ROUNDS - 0.5) + "] BIN input " + str(X))
         # print("Round [" + str(ROUNDS - 0.5) + "] DEC input " + str([int(x, 2) for x in X]))
         # print("Round [" + str(ROUNDS - 0.5) + "] HEX input " + ' '.join([str(hex(int(x, 2)))[2:] for x in X]))
@@ -113,10 +112,10 @@ class IDEA:
         # print("Round [" + str(ROUNDS - 0.5) + "] HEX sub-key " + ' '.join(
         # [str(hex(int(k, 2)))[2:] for k in K[ROUNDS - 1]]))
         result = []
-        result.append(self.mul(int(X[0], 2), int(K[ROUNDS - 1][0], 2)))
-        result.append(self.add(int(X[1], 2), int(K[ROUNDS - 1][1], 2)))
-        result.append(self.add(int(X[2], 2), int(K[ROUNDS - 1][2], 2)))
-        result.append(self.mul(int(X[3], 2), int(K[ROUNDS - 1][3], 2)))
+        result.append(self.mul(X[0], int(K[ROUNDS - 1][0], 2)))
+        result.append(self.add(X[1], int(K[ROUNDS - 1][1], 2)))
+        result.append(self.add(X[2], int(K[ROUNDS - 1][2], 2)))
+        result.append(self.mul(X[3], int(K[ROUNDS - 1][3], 2)))
 
         cipher = ''.join([str(hex(int(x)))[2:] for x in result])
         #print("Final Cipher/Decipher: " + cipher + "\n---------------")
@@ -125,10 +124,11 @@ class IDEA:
 
     def encrypt(self, plain_text=''):
         plain_text = get_pt_bin_block_list(plain_text)
+        print(plain_text)
         return self.calculate_cipher(self.enc_sub_keys, plain_text)
 
     def decrypt(self, cipher_text='', codec='utf-8', aa='ascii'):
-        cipher_text = get_bin_block(cipher_text)
+        cipher_text = get_cipher_block(cipher_text)
         res = self.calculate_cipher(self.dec_sub_keys, cipher_text)
         res = ''.join('0' * (16 - len(res))) + res
         print("Decrypted text: " + res)
@@ -138,24 +138,18 @@ class IDEA:
 
 def get_pt_bin_block_list(plain_text):  # 4 Blocks 16 bit each
     pt_block_list = []
-    print([ord(item) for item in plain_text])
     temp = ' '.join(bin(ord(item))[2:] for item in plain_text)
     temp = temp.split(' ')
     temp_list = ['0'*(8-len(item))+item for item in temp]
     temp = ''.join(byte for byte in temp_list)
     temp = ''.join('0' * (BLOCK_SIZE*4-len(temp))) + temp
-    [pt_block_list.append(temp[i:i+16]) for i in range(0,len(temp),16)]
-
+    [pt_block_list.append(int(temp[i:i+16], 2)) for i in range(0,len(temp),16)]
     return pt_block_list
 
-def get_bin_block(plain_text):  # 4 Blocks 16 bit each
-    plain_text = str(bin(int(plain_text, 16))[2:])
-    plain_text = ''.join(['0' for l in range(64 - len(plain_text))]) + plain_text
-    temp_list = []
-    for index in range(0, len(plain_text), 16):
-        temp_list.append(plain_text[index: index + 16])  # Divide plain text into bytes
-    plain_text = temp_list
-    return plain_text
+def get_cipher_block(cipher_text):  # 4 Blocks 16 bit each
+    temp = []
+    [temp.append(int(cipher_text[i:i + 4], 16)) for i in range(0, len(cipher_text), 4)]
+    return temp
 
 
 if __name__ == "__main__":

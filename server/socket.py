@@ -5,7 +5,7 @@ import inspect
 
 class Socket:
     def __init__(self):
-        self.log_file = open("files/socket_data.txt", "w")
+        self.log_file = open("files/socket_data.txt", "w", encoding='utf-8')
         print("-> Connection socket created successfully.\n-> Authenticating...")
         self.receiver = Receiver(self)
         self.sender = Sender(self, self.receiver.send_key())

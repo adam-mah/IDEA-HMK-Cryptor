@@ -34,15 +34,34 @@ class IDEA_Key_Scheduler:
             (val << r_bits % max_bits) & (2 ** max_bits - 1) | \
             ((val & (2 ** max_bits - 1)) >> (max_bits - (r_bits % max_bits)))
 
-        self.mulInv = lambda x: sympy.mod_inverse(x, 2 ** BLOCK_SIZE + 1)
+        #self.mulInv = lambda x: sympy.mod_inverse(x, 2 ** BLOCK_SIZE + 1)
         self.addInv = lambda x: (0x10000 - x) & 0xFFFF
+
+    def mulInv(self, x):
+        if x <= 1:
+            return x  # 0 and 1 are self-inverse
+        t0 = 1
+        t1 = int(0x10001 / x)  # since x >= 2, this fits into 16 bits
+        y = int((0x10001 % x) & 0xffff)
+        while True:
+            if y == 1:
+                return int((1 - t1) & 0xffff)
+            q = int(x / y)
+            x = int(x % y)
+            t0 = int((t0 + q * t1) & 0xffff)
+            if x == 1:
+                return t0
+            q = int(y / x)
+            y = int(y % x)
+            t1 = int((t1 + q * t0) & 0xffff)
 
     def encryption_key_schedule(self):
         key_bin_list = get_key_bin_list(self.key_int)
         self.enc_sub_keys_list.append(key_bin_list[:SUB_KEYS])
 
         # print("HEX New Sub key[0]: " + ' '.join([str(hex(int(elem, 2)))[2:] for elem in key_bin_list[:SUB_KEYS]]))
-        to_remove = SUB_KEYS
+        self.key_int = self.shift(self.key_int, SHIFT_BITS, KEY_SIZE)  # Make new shifted key
+        to_remove = 6  # SUB_KEYS
         for i in range(0, ROUNDS - 1):
             temp = key_bin_list
             del temp[:to_remove]
