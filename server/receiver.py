@@ -22,7 +22,7 @@ class Receiver():
         return self.hmk_cryptor.get_public_key()
 
     def exchange_keys(self, ciphered_key, signed_idea, DSA_keys):
-        print("\n------RECEIVER------\n")
+        print("\n------RECEIVER------")
         print("Received encrypted IDEA Key, verifying and decrypting...")
         self.DSA_keys = {'p': DSA_keys[0], 'q': DSA_keys[1], 'g': DSA_keys[2], 'pkey': DSA_keys[3]}
 
