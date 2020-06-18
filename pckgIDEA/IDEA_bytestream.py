@@ -1,3 +1,4 @@
+import binascii
 import random
 
 import numpy as np
@@ -121,10 +122,15 @@ class IDEA:
         temp = [str(hex(int(x)))[2:] for x in result]
         # print('hex: ' + str(temp))
         temp = ['0' * (4 - len(x)) + x for x in temp]
+        for i in range(len(temp)):
+            if i == '10000':
+                temp[i] = 'ffff'
         # print('hex added: ' + str(temp))
         cipher = ''.join([x for x in temp])
         # print("Final Cipher/Decipher: " + cipher + "\n---------------")
         cipher = '0' * (16 - len(cipher)) + cipher
+        if len(cipher) > 16:
+            print('aa')
         return cipher  # Hex string
 
     def encrypt(self, plain_text='', is_hex=False, codec='utf-8'):
@@ -137,8 +143,9 @@ class IDEA:
         cipher_text = get_bin_block(cipher_text)
         res = self.calculate_cipher(self.dec_sub_keys, cipher_text)
         res = ''.join('0' * (16 - len(res))) + res
-        res = bytearray.fromhex(res).decode(codec)
-        return res
+        print(binascii.unhexlify(res))
+        #res = bytearray.fromhex(res)#.decode(codec)
+        return binascii.unhexlify(res)
 
 
 def get_bin_block(plain_text):  # 4 Blocks 16 bit each

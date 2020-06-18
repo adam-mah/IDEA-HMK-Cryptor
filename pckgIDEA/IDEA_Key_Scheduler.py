@@ -1,12 +1,5 @@
 import sympy
-
-KEY_SIZE = 128
-BLOCK_SIZE = 16  # Plaintext = 64bits
-SUB_KEYS = 6
-SHIFT_BITS = 25
-ROUNDS = 9  # Round up the number, NO HALVES
-
-""" PSEUDO for Key-Scheduler
+""" PSEUDO for Key-Scheduler adam.mah315@gmail.com
 Key1 1101 1100 0110 1111 0011 1111 0101 1001
 Shifted Key1 0001 1011 1100 1111 1101 0110 0111 0111
 Shifted Key2 1111 0011 1111 0101 1001 1101 1100 0110
@@ -22,7 +15,21 @@ Sub 5 1111 1101 0110 0111 0111 0001
 3. Shift main key = new key
 4. Take 6-len(new key) from shifted key and add to the end of new-sub-key2
 5. repeat from 2
-By Adam"""
+By Adam Mahameed"""
+__author__ = "Adam Mahameed"
+__copyright__ = "Copyright 2020, Text cipher transmission project"
+__credits__ = ["Adam Mahameed"]
+__license__ = "GPL"
+__version__ = "1.0.1"
+__maintainer__ = "Adam Mahameed"
+__email__ = "adam.mah315@gmail.com"
+
+KEY_SIZE = 128
+BLOCK_SIZE = 16  # Plaintext = 64bits
+SUB_KEYS = 6
+SHIFT_BITS = 25
+ROUNDS = 9  # Round up the number, NO HALVES
+
 
 
 class IDEA_Key_Scheduler:
@@ -129,7 +136,6 @@ def get_key_bin_list(key_int):
     key_bin = str(bin(key_int))[2:]
     key_bin = ''.join(['0' for i in range(0, BLOCK_SIZE * 8 - len(key_bin)) if
                        len(key_bin) < BLOCK_SIZE * 8]) + key_bin  # Add missing zeros for prefix to binary key string
-
     key_bin_list = []
     for index in range(0, len(key_bin), BLOCK_SIZE):
         key_bin_list.append(key_bin[index: index + BLOCK_SIZE])  # Divide key into 8 sub keys

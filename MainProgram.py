@@ -1,11 +1,10 @@
 from server.socket import Socket
 
+soc = Socket()
+sender = soc.sender
 
-# soc = Socket()
-# sender = soc.sender
-#
-# sender.send_file("files/orig.txt")
-# soc.close_connection()
+sender.send_file("files/orig.txt")
+soc.close_connection()
 
 def send_text(text):
     while text != '':
@@ -15,21 +14,24 @@ def send_text(text):
 
 def send_choice():
     choice = int(input("Sending type:\n    1-Send text\n    2-Send file\n   Choice: "))
-    if choice == 1:
-        while True:
-            print('Type \'exit\' to close program')
-            text = str(input("Input text to send: "))
-            if text == 'exit':
-                soc.close_connection()
-                exit()
-            else:
-                send_text(text)
-    elif choice == 2:
-        file = str(input("Input .txt file name: "))
-        soc.sender.send_file(file)
-        print("-------\nFile sent successfully to receiver!")
-        soc.close_connection()
-        exit()
+    while True:
+        if choice == 1:
+            while True:
+                print('Type \'exit\' to close program')
+                text = str(input("Input text to send: "))
+                if text == 'exit':
+                    soc.close_connection()
+                    exit()
+                else:
+                    send_text(text+'\n')
+        elif choice == 2:
+            file = str(input("Input .txt file name: "))
+            soc.sender.send_file(file)
+            print("-------\nFile sent successfully to receiver!")
+            soc.close_connection()
+            exit()
+        else:
+            print("Invalid input")
 
 
 print("**Text Cryptor**")
