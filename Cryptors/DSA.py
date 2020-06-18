@@ -92,7 +92,7 @@ class DSA:
         :return: r = (gk mod p)mod q, s = [k-1(H(M)+ xr)] mod q
         """
         if type(M) != bytes:
-            M = str.encode(str(M), "ascii")
+            M = str.encode(str(M), "utf-8")
 
         while True:
             k = randrange(2, self.q)  # generates a random signature key k, k<q
@@ -120,7 +120,9 @@ class DSA:
         """
 
         if type(M) != bytes:
-            M = str.encode(str(M), "ascii")
+            if type(M) == str:
+                M = M.rstrip('\x00')
+            M = str.encode(str(M), "utf-8")
         try:
             w = sympy.mod_inverse(s, q)  # w = s-1(mod q)
         except ZeroDivisionError:

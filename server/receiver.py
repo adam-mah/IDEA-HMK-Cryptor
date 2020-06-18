@@ -23,26 +23,31 @@ class Receiver():
 
     def exchange_keys(self, ciphered_key, signed_idea, DSA_keys):
         print("\n------RECEIVER------")
-        print("Received encrypted IDEA Key, verifying and decrypting...")
+        print("Received encrypted IDEA Key, decrypting and verifying...")
         self.DSA_keys = {'p': DSA_keys[0], 'q': DSA_keys[1], 'g': DSA_keys[2], 'pkey': DSA_keys[3]}
 
-        if self.verify_message(ciphered_key, signed_idea[0], signed_idea[1]):
-            idea_key = self.hmk_cryptor.decrypt(int(ciphered_key))
-            idea_key = idea_key.rstrip('\x00')
-            self.idea_cryptor = IDEA(int(idea_key))
+        idea_key = self.hmk_cryptor.decrypt(int(ciphered_key))
+        #idea_key = idea_key.rstrip('\x00')
+        if self.verify_message(idea_key, signed_idea[0], signed_idea[1]):
+            self.idea_cryptor = IDEA(int(idea_key.rstrip('\x00')))
             print("IDEA key was exchanged and verified successfully.")
             print("Decrypted IDEA Key: " + idea_key)
         else:
             print("Incorrect received IDEA key value")
 
+
     def receive(self, M, signature):
         print("\n------RECEIVER------")
         print("-> Message {0} received from sender".format(M))
+        print("-> Decrypting and verifying received message".format(M))
         r, s = signature
-        if self.verify_message(M, r, s):
-            decrypted_text = self.idea_cryptor.decrypt(M)
-            print("-> Verified, decrypted message: " + decrypted_text)
+        decrypted_text = self.idea_cryptor.decrypt(M)
+        if self.verify_message(decrypted_text, r, s):
+            print("-> Verified -> decrypted message: " + decrypted_text)
             self.rec_file.write(decrypted_text)
+        else:
+            print("-> Verification failed! -> decrypted message: " + decrypted_text)
+
 
     def verify_message(self, M, r, s):
         """

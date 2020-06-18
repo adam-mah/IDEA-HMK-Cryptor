@@ -1,10 +1,9 @@
 from server.socket import Socket
 
-soc = Socket()
-sender = soc.sender
-
-sender.send_file("files/orig.txt")
-soc.close_connection()
+#soc = Socket()
+#sender = soc.sender
+#sender.send_file("files/lorem.txt")
+#soc.close_connection()
 
 def send_text(text):
     while text != '':
@@ -13,7 +12,7 @@ def send_text(text):
 
 
 def send_choice():
-    choice = int(input("Sending type:\n    1-Send text\n    2-Send file\n   Choice: "))
+    choice = int(input("Sending type:\n    1-Send text\n    2-Send file\n    3-Send Lorem ipsum\n   Choice: "))
     while True:
         if choice == 1:
             while True:
@@ -30,6 +29,11 @@ def send_choice():
             print("-------\nFile sent successfully to receiver!")
             soc.close_connection()
             exit()
+        elif choice == 3:
+            soc.sender.send_file("files/lorem.txt")
+            print("-------\nFile sent successfully to receiver!")
+            soc.close_connection()
+            break#exit()
         else:
             print("Invalid input")
 
@@ -44,6 +48,7 @@ while True:
             if choice == 1:
                 soc = Socket()
                 send_choice()
+                break
             elif choice == 2:
                 while True:
                     key = str(input("IDEA encryption key (32-Hex Digits): "))

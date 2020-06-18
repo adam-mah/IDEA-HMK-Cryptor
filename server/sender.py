@@ -11,7 +11,7 @@ class Sender:
         self.hmk_pkey = hmk_pkey  # Exchanged HMK Public key from receiver
         print("Received public key {0}...] from receiver...".format(str(self.hmk_pkey)[:10]))
         print("Generating and encrypting IDEA key using HMKnapsack receiver public key")
-        #KEY = 321207699978693532835173521553042405267
+        # KEY = 321207699978693532835173521553042405267
         if KEY == None:
             self.idea_cryptor = IDEA()  # Initializing IDEA encryptor with KEY value
         else:
@@ -19,10 +19,12 @@ class Sender:
         ciphered_IDEA_key = HMKnapsack.encrypt(str(self.idea_cryptor.key),
                                                self.hmk_pkey)  # Encrypting IDEA Key with HMK public key
         print("Key {1} was generated successfully and encrypted and signed\n"
-              "Sending signature and encrypted IDEA Key [{0}...]".format(str(ciphered_IDEA_key)[:10], self.idea_cryptor.key))
+              "Sending signature and encrypted IDEA Key [{0}...]".format(str(ciphered_IDEA_key)[:10],
+                                                                         self.idea_cryptor.key))
         print(self.idea_cryptor.key)
 
-        socket.receiver.exchange_keys(ciphered_IDEA_key, self.sign_message(ciphered_IDEA_key), self.signer.get_keys())
+        socket.receiver.exchange_keys(ciphered_IDEA_key, self.sign_message(str(self.idea_cryptor.key)),
+                                      self.signer.get_keys())
 
     def send(self, M):
         print("\n------SENDER------")
@@ -30,13 +32,22 @@ class Sender:
         if len(M) <= 8:
             ciphered_text = self.idea_cryptor.encrypt(M)
             print("Original message: {0}\nCiphered message: {1}".format(M, ciphered_text))
-            M = (ciphered_text, self.sign_message(ciphered_text))
+            M = (ciphered_text, self.sign_message(M))
             self.socket.send(M)
         else:
             print('Invalid message size, message must be shorter than 8')
 
     def sign_message(self, M):
-        r, s = self.signer.sign(M)
+        """
+        Sign original message
+        :param M: Original message
+        :return: r, s as M signature
+        """
+        print('Signing message: ' + M)
+        x = bytearray(str.encode(M, 'utf-8'))
+        [x.insert(0, 0) for i in range(8 - len(M))]
+        x = bytes(x)
+        r, s = self.signer.sign(x)
         return r, s
 
     def send_file(self, path):

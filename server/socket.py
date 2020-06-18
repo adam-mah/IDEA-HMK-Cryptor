@@ -24,6 +24,10 @@ class Socket:
             print("Invalid calling class")
 
     def close_connection(self):
+
         self.log_file.close()
         self.receiver.rec_file.close()
+        #del self.sender
+        #del self.receiver
+        #del self
         print("Connection terminated successfully")
