@@ -1,18 +1,14 @@
-import sympy
-
+from Cryptors.DSA import DSA
 from Cryptors.HMKnapsack import HMKnapsack
 from pckgIDEA.IDEA import IDEA
-from Cryptors.DSA import DSA
-import Crypto.Util.number as num
 
 # Secure transmission of songs files.
 # Creation of a secure chanal with  Merkle–Hellman knapsack + Key transmision and identication.
 # Recieveing of an engypted song file and checking of its validity.
 # Encrytion-decryption by algorithm IDEA
-print(num.getPrime(128))
 print("\n\n---------IDEA---------")
 KEY = int('006400c8012c019001f4025802bc0320', 16)
-plain_text = 'HiStackO'
+plain_text = 'HiAdam'
 # IDEA Example
 cryptor = IDEA()  # Initialize cryptor with 128bit key
 cipher_text = cryptor.encrypt(plain_text)

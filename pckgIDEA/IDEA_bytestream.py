@@ -1,6 +1,7 @@
-import binascii
 import random
+
 import numpy as np
+
 from pckgIDEA.IDEA_Key_Scheduler import IDEA_Key_Scheduler
 
 KEY_SIZE = 128
@@ -49,7 +50,6 @@ class IDEA:
         # THIS TEST SAMPLE OUTPUT MUST MATCH https://www.geeksforgeeks.org/simplified-international-data-encryption-algorithm-idea/ output
         X = text
         K = sub_keys
-        print("Binary text:" + str(X))
 
         # Print sub keys
         """
@@ -118,29 +118,31 @@ class IDEA:
         result.append(self.add(int(X[2], 2), int(K[ROUNDS - 1][2], 2)))
         result.append(self.mul(int(X[3], 2), int(K[ROUNDS - 1][3], 2)))
 
-        cipher = ''.join([str(hex(int(x)))[2:] for x in result])
-        print("Final Cipher/Decipher: " + cipher + "\n---------------")
-
+        temp = [str(hex(int(x)))[2:] for x in result]
+        # print('hex: ' + str(temp))
+        temp = ['0' * (4 - len(x)) + x for x in temp]
+        # print('hex added: ' + str(temp))
+        cipher = ''.join([x for x in temp])
+        # print("Final Cipher/Decipher: " + cipher + "\n---------------")
+        cipher = '0' * (16 - len(cipher)) + cipher
         return cipher  # Hex string
 
     def encrypt(self, plain_text='', is_hex=False, codec='utf-8'):
         if not is_hex:
             plain_text = plain_text.encode(codec).hex()
         plain_text = get_bin_block(plain_text)
-        print("ppt:" + str(plain_text))
         return self.calculate_cipher(self.enc_sub_keys, plain_text)
 
-    def decrypt(self, cipher_text='', codec='utf-8', aa='ascii'):
+    def decrypt(self, cipher_text='', codec='utf-8'):
         cipher_text = get_bin_block(cipher_text)
         res = self.calculate_cipher(self.dec_sub_keys, cipher_text)
         res = ''.join('0' * (16 - len(res))) + res
-
-        return bytearray.fromhex(res).decode(codec)
+        res = bytearray.fromhex(res).decode(codec)
+        return res
 
 
 def get_bin_block(plain_text):  # 4 Blocks 16 bit each
     plain_text = str(bin(int(plain_text, 16))[2:])
-    print(plain_text)
     plain_text = ''.join(['0' for l in range(64 - len(plain_text))]) + plain_text
     temp_list = []
     for index in range(0, len(plain_text), 16):
@@ -151,11 +153,11 @@ def get_bin_block(plain_text):  # 4 Blocks 16 bit each
 
 if __name__ == "__main__":
     KEY = int('006400c8012c019001f4025802bc0320', 16)
-    plain_text = 'Adam'
+    plain_text = 'HiStackO'
     encoder = 'utf_8'
-    cryptor = IDEA(KEY)  # Initialize cryptor with 128bit key
+    cryptor = IDEA()  # Initialize cryptor with 128bit key
     cipher_text = cryptor.encrypt(plain_text, codec=encoder)
-    cipher_text = '0'+cipher_text
+    cipher_text = '0' + cipher_text
     deciphered_text = cryptor.decrypt(cipher_text, codec=encoder)
     print(
         "Original text = {0}\nCiphered text = {1}\nDeciphered text = {2}".format(plain_text, cipher_text,

@@ -11,12 +11,12 @@ class Sender:
         self.hmk_pkey = hmk_pkey  # Exchanged HMK Public key from receiver
         print("Received public key {0}...] from receiver...".format(str(self.hmk_pkey)[:10]))
         print("Generating and encrypting IDEA key using HMKnapsack receiver public key")
-        KEY = [321207699978693532835173521553042405267, 219932487172924736460089064381618064013]
-        self.idea_cryptor = IDEA(KEY[1])  # Initializing IDEA encryptor with KEY value
+        #KEY = 321207699978693532835173521553042405267
+        self.idea_cryptor = IDEA()  # Initializing IDEA encryptor with KEY value
         ciphered_IDEA_key = HMKnapsack.encrypt(str(self.idea_cryptor.key),
                                                self.hmk_pkey)  # Encrypting IDEA Key with HMK public key
         print("Key {1} was generated successfully and encrypted and signed\n"
-              "Sending signature and encrypted IDEA Key [{0}...]".format(str(ciphered_IDEA_key)[:10], KEY))
+              "Sending signature and encrypted IDEA Key [{0}...]".format(str(ciphered_IDEA_key)[:10], self.idea_cryptor.key))
         print(self.idea_cryptor.key)
 
         socket.receiver.exchange_keys(ciphered_IDEA_key, self.sign_message(ciphered_IDEA_key), self.signer.get_keys())

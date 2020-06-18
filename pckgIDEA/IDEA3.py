@@ -1,7 +1,5 @@
-import random
+import secrets
 
-import numpy as np
-import Crypto.Util.number as num
 from pckgIDEA.IDEA_Key_Scheduler import IDEA_Key_Scheduler
 
 KEY_SIZE = 128
@@ -12,13 +10,13 @@ ROUNDS = 9  # Round up the number, NO HALVES
 
 
 class IDEA:
-    def __init__(self, key=num.getPrime(KEY_SIZE)):
+    def __init__(self, key=secrets.randbits(128)):
         self.key = key  # random.getrandbits(KEY_SIZE)
         self.scheduler = IDEA_Key_Scheduler(self.key)
         self.enc_sub_keys, self.dec_sub_keys = self.schedule_keys()
 
-        self.mul = lambda x, y: (x*y) % (2**BLOCK_SIZE+1)#int(np.mod(x * y, 2 ** BLOCK_SIZE + 1))
-        self.add = lambda x, y: (x+y) % (2**BLOCK_SIZE)#int(np.mod(x + y, 2 ** BLOCK_SIZE))
+        self.mul = lambda x, y: (x * y) % (2 ** BLOCK_SIZE + 1)  # int(np.mod(x * y, 2 ** BLOCK_SIZE + 1))
+        self.add = lambda x, y: (x + y) % (2 ** BLOCK_SIZE)  # int(np.mod(x + y, 2 ** BLOCK_SIZE))
         self.xor = lambda x, y: x ^ y
 
     def schedule_keys(self):  # Prepares all sub keys for the rounds
@@ -50,7 +48,7 @@ class IDEA:
         # THIS TEST SAMPLE OUTPUT MUST MATCH https://www.geeksforgeeks.org/simplified-international-data-encryption-algorithm-idea/ output
         X = text
         K = sub_keys
-        #print("Binary text:" + str(X))
+        # print("Binary text:" + str(X))
 
         # Print sub keys
         """
@@ -90,8 +88,8 @@ class IDEA:
 
             X = [step[10], step[11], step[12], step[13]]  # Swap step 12 and 13
 
-            #for j in range(0, len(X)):
-               # X[j] = '0' * (16 - len(X[j])) + X[j]
+            # for j in range(0, len(X)):
+            # X[j] = '0' * (16 - len(X[j])) + X[j]
 
             # print("Round [" + str(i + 1) + "] BIN output " + str(X))
             # print("Round [" + str(i + 1) + "] DEC output " + str([int(x, 2) for x in X]))
@@ -117,14 +115,15 @@ class IDEA:
         result.append(self.add(X[2], int(K[ROUNDS - 1][2], 2)))
         result.append(self.mul(X[3], int(K[ROUNDS - 1][3], 2)))
 
-        cipher = ''.join([str(hex(int(x)))[2:] for x in result])
-        #print("Final Cipher/Decipher: " + cipher + "\n---------------")
-        cipher = '0' * (16 - len(cipher)) + cipher
+        temp = [str(hex(int(x)))[2:] for x in result]
+        temp = ['0' * (4 - len(x)) + x for x in temp]
+        cipher = ''.join([x for x in temp])
+        # print("Final Cipher/Decipher: " + cipher + "\n---------------")
+        # cipher = '0' * (16 - len(cipher)) + cipher
         return cipher  # Hex string
 
     def encrypt(self, plain_text=''):
         plain_text = get_pt_bin_block_list(plain_text)
-        print(plain_text)
         return self.calculate_cipher(self.enc_sub_keys, plain_text)
 
     def decrypt(self, cipher_text='', codec='utf-8', aa='ascii'):
@@ -132,19 +131,19 @@ class IDEA:
         res = self.calculate_cipher(self.dec_sub_keys, cipher_text)
         res = ''.join('0' * (16 - len(res))) + res
         print("Decrypted text: " + res)
-        return ''.join([chr(int(''.join(c), 16)) for c in zip(res[0::2],res[1::2])])
-
+        return ''.join([chr(int(''.join(c), 16)) for c in zip(res[0::2], res[1::2])])
 
 
 def get_pt_bin_block_list(plain_text):  # 4 Blocks 16 bit each
     pt_block_list = []
     temp = ' '.join(bin(ord(item))[2:] for item in plain_text)
     temp = temp.split(' ')
-    temp_list = ['0'*(8-len(item))+item for item in temp]
+    temp_list = ['0' * (8 - len(item)) + item for item in temp]
     temp = ''.join(byte for byte in temp_list)
-    temp = ''.join('0' * (BLOCK_SIZE*4-len(temp))) + temp
-    [pt_block_list.append(int(temp[i:i+16], 2)) for i in range(0,len(temp),16)]
+    temp = ''.join('0' * (BLOCK_SIZE * 4 - len(temp))) + temp
+    [pt_block_list.append(int(temp[i:i + 16], 2)) for i in range(0, len(temp), 16)]
     return pt_block_list
+
 
 def get_cipher_block(cipher_text):  # 4 Blocks 16 bit each
     temp = []
