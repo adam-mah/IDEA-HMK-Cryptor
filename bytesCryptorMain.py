@@ -6,7 +6,7 @@ KEY = int('006400c8012c019001f4025802bc0320', 16)
 
 # IDEA Example
 cryptor = IDEA(KEY)  # Initialize cryptor with 128bit key
-"""in_file = open("files/song.mp3", "rb")
+in_file = open("files/lorem.txt", "rb")
 out_file = open("files/encrypted.mp3", "w", encoding="utf-8")
 
 bytes8 = in_file.read(8)
@@ -24,7 +24,7 @@ while bytes8:
     #bytes8 = bytes8
 
 in_file.close()
-out_file.close()"""
+out_file.close()
 
 
 in_file = open("files/encrypted.mp3", "r", encoding="utf-8")
@@ -36,7 +36,7 @@ bytes8 = in_file.read(16)
 # print(bytes.fromhex(str(byte3)[2:-1]))#
 while bytes8:
     # Do stuff with byte.
-    res = cryptor.decrypt(bytes8, codec='latin-1')
+    res = cryptor.decrypt(bytes8)
     print('Dec: ' + str(res))
     # if len(res)<16:
     #    res = ''.join('0' * (16-len(res)))+res

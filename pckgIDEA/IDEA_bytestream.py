@@ -18,12 +18,19 @@ class IDEA:
         self.scheduler = IDEA_Key_Scheduler(self.key)
         self.enc_sub_keys, self.dec_sub_keys = self.schedule_keys()
 
-        self.mul = lambda x, y: int(np.mod(x * y, 2 ** BLOCK_SIZE + 1))
+        # self.mul = lambda x, y: int(np.mod(x * y, 2 ** BLOCK_SIZE + 1))
         self.add = lambda x, y: int(np.mod(x + y, 2 ** BLOCK_SIZE))
         self.xor = lambda x, y: x ^ y
 
     def schedule_keys(self):  # Prepares all sub keys for the rounds
         return self.scheduler.encryption_key_schedule(), self.scheduler.decryption_key_schedule()
+
+    def mul(self, x, y):
+        if x == 0:
+            x = 65536
+        if y == 0:
+            y = 65536
+        return int(np.mod(x * y, 2 ** BLOCK_SIZE + 1))
 
     def calculate_cipher(self, sub_keys, text):
         """
@@ -60,7 +67,9 @@ class IDEA:
             print("HEX Sub-Key: " + ' '.join([str(hex(int(elem, 2)))[2:] for elem in lst]))
         print("------------\n")
         """
-
+        # for i in range(len(X)):
+        #    if X[i] == 0:
+        #         X[i] = 65536
         step = ['0'] * 14
         for i in range(0, ROUNDS - 1):
             # Input print
@@ -123,8 +132,8 @@ class IDEA:
         # print('hex: ' + str(temp))
         temp = ['0' * (4 - len(x)) + x for x in temp]
         for i in range(len(temp)):
-            if i == '10000':
-                temp[i] = 'ffff'
+            if temp[i] == '10000':
+                temp[i] = '0000'
         # print('hex added: ' + str(temp))
         cipher = ''.join([x for x in temp])
         # print("Final Cipher/Decipher: " + cipher + "\n---------------")
@@ -144,7 +153,7 @@ class IDEA:
         res = self.calculate_cipher(self.dec_sub_keys, cipher_text)
         res = ''.join('0' * (16 - len(res))) + res
         print(binascii.unhexlify(res))
-        #res = bytearray.fromhex(res)#.decode(codec)
+        # res = bytearray.fromhex(res)#.decode(codec)
         return binascii.unhexlify(res)
 
 
@@ -162,6 +171,7 @@ if __name__ == "__main__":
     KEY = int('006400c8012c019001f4025802bc0320', 16)
     plain_text = 'HiStackO'
     encoder = 'utf_8'
+    print(hex(-1))
     cryptor = IDEA()  # Initialize cryptor with 128bit key
     cipher_text = cryptor.encrypt(plain_text, codec=encoder)
     cipher_text = '0' + cipher_text
