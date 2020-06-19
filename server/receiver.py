@@ -23,7 +23,7 @@ class Receiver():
 
     def exchange_keys(self, ciphered_key, signed_idea, DSA_keys):
         print("\n------RECEIVER------")
-        print("Received encrypted IDEA Key, decrypting and verifying...")
+        print("Received encrypted IDEA Key and signature, decrypting and verifying...")
         self.DSA_keys = {'p': DSA_keys[0], 'q': DSA_keys[1], 'g': DSA_keys[2], 'pkey': DSA_keys[3]}
 
         idea_key = self.hmk_cryptor.decrypt(int(ciphered_key))
@@ -38,7 +38,7 @@ class Receiver():
 
     def receive(self, M, signature):
         print("\n------RECEIVER------")
-        print("-> Message {0} received from sender".format(M))
+        print("-> Message {0} and signature received from sender".format(M))
         print("-> Decrypting and verifying received message".format(M))
         r, s = signature
         decrypted_text = self.idea_cryptor.decrypt(M)

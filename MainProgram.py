@@ -1,9 +1,9 @@
 from server.socket import Socket
 
-#soc = Socket()
-#sender = soc.sender
-#sender.send_file("files/lorem.txt")
-#soc.close_connection()
+# soc = Socket()
+# sender = soc.sender
+# sender.send_file("files/lorem.txt")
+# soc.close_connection()
 
 def send_text(text):
     while text != '':

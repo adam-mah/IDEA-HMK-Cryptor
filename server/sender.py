@@ -22,9 +22,11 @@ class Sender:
               "Sending signature and encrypted IDEA Key [{0}...]".format(str(ciphered_IDEA_key)[:10],
                                                                          self.idea_cryptor.key))
         print(self.idea_cryptor.key)
-
+        #print("\n------SERVER------")
+        #print('-> Received key and signature, sending to receiver')
         socket.receiver.exchange_keys(ciphered_IDEA_key, self.sign_message(str(self.idea_cryptor.key)),
                                       self.signer.get_keys())
+
 
     def send(self, M):
         print("\n------SENDER------")
