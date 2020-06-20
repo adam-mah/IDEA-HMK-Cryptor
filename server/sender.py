@@ -20,10 +20,10 @@ class Sender:
                                                self.hmk_pkey)  # Encrypting IDEA Key with HMK public key
         print("Key {1} was generated successfully and encrypted and signed\n"
               "Sending signature and encrypted IDEA Key [{0}...]".format(str(ciphered_IDEA_key)[:10],
-                                                                         self.idea_cryptor.key))
-        print(self.idea_cryptor.key)
-        #print("\n------SERVER------")
-        #print('-> Received key and signature, sending to receiver')
+                                                                         hex(self.idea_cryptor.key)))
+        print("Encryption keys were generated successfully")
+        print("\n------SERVER------")
+        print('-> Received encrypted IDEA key and signature, sending to receiver')
         socket.receiver.exchange_keys(ciphered_IDEA_key, self.sign_message(str(self.idea_cryptor.key)),
                                       self.signer.get_keys())
 
@@ -33,7 +33,7 @@ class Sender:
         M = str(M)
         if len(M) <= 8:
             ciphered_text = self.idea_cryptor.encrypt(M)
-            print("Original message: {0}\nCiphered message: {1}".format(M, ciphered_text))
+            print("Original message: {0}\nSigning message: {1}\nCiphered message: {2}".format(M, M, ciphered_text))
             M = (ciphered_text, self.sign_message(M))
             self.socket.send(M)
         else:
@@ -45,7 +45,6 @@ class Sender:
         :param M: Original message
         :return: r, s as M signature
         """
-        print('Signing message: ' + M)
         x = bytearray(str.encode(M, 'utf-8'))
         [x.insert(0, 0) for i in range(8 - len(M))]
         x = bytes(x)

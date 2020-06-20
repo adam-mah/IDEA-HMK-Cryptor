@@ -31,7 +31,8 @@ class Receiver():
         if self.verify_message(idea_key, signed_idea[0], signed_idea[1]):
             self.idea_cryptor = IDEA(int(idea_key.rstrip('\x00')))
             print("IDEA key was exchanged and verified successfully.")
-            print("Decrypted IDEA Key: " + idea_key)
+            print("Decrypted IDEA Key: " + hex(self.idea_cryptor.key))
+            print("Decryption keys were generated successfully")
         else:
             print("Incorrect received IDEA key value")
 

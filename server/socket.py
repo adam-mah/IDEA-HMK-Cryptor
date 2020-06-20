@@ -9,8 +9,8 @@ class Socket:
         print("-> Connection socket created successfully.\n-> Authenticating...")
         self.receiver = Receiver(self)
         pkey = self.receiver.send_key()
-        #print("\n------SERVER------")
-        #print('-> Received public key '+str(pkey)[:10]+'...] from receiver, sending...')
+        print("\n------SERVER------")
+        print('-> Received public key '+str(pkey)[:10]+'...] from receiver, sending...')
         self.sender = Sender(self, pkey, KEY)
         print("-> Authentication Complete\n---------------------------------------------------------------------")
 

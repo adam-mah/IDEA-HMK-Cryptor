@@ -15,7 +15,12 @@ from server.socket import Socket
 
 custom_key = None
 file_path = None
+soc = None
 
+def send_text(text, soc):
+    while text != '':
+        soc.sender.send(text[:8])
+        text = text[8:]
 
 class Ui_DataView(object):
     def setupUi(self, DataView):
@@ -64,6 +69,14 @@ class Ui_DataView(object):
         self.label.setText(_translate("DataView", "Sender"))
         self.label_2.setText(_translate("DataView", "Server"))
         self.label_3.setText(_translate("DataView", "Receiver"))
+
+    def display_results(self):## file_path in sender, socket_data in Server, receiver_decrypted in Receiver
+        f = open(file_path, "r")
+        #stream = QtCore.QTextStream(QtCore.QFile(file_path))
+        line = f.readLine()
+        while line:
+            self.textEdit.append(line)
+            line = f.readLine()
 
 
 class Ui_Cryptology(object):
@@ -165,21 +178,19 @@ class Ui_Cryptology(object):
         self.pushButton_5.clicked.connect(self.data_view)
 
     def open_log(self):
-        self.f = open('out.txt', 'w')
+        self.f = open('files/temp.txt', 'w')
         sys.stdout = self.f
 
     def close_log(self):
         self.f.close()
 
     def read_log(self):
-        self.f = open('out.txt', 'r')
+        self.f = open('files/temp.txt', 'r')
         line = self.f.readline()
         while line:
             self.textEdit.append(line)
             line = self.f.readline()
         self.f.close()
-
-        # sys.stdout = orig_stdout
 
     # (don't touch)
     def data_view(self):
@@ -207,19 +218,11 @@ class Ui_Cryptology(object):
 
     # Encryption Button Event
     def start_encryption(self):
+        self.open_log()
         mode = 0
         # if the user chose to enter a message manually
         if self.radioButton_3.isChecked():
-            pass
-            # self.textEdit.setText(self.lineEdit.text())
-            '''
-            *********
-            Your Code if the user choose to enter a message manually
-            use 'self.lineEdit.text()' to get the text from the field
-            also you have to display in the console (use self.textEdit) to display there
-            *********
-            '''
-            self.lineEdit.text()
+            send_text(self.lineEdit.text()+'\n', self.soc)###
         # the user chose to encrypt a file
         else:
             # displaying file contents on gui
@@ -230,17 +233,16 @@ class Ui_Cryptology(object):
                 msg.setText(file.errorString())
                 x = msg.exec_()
                 mode = 1
-            stream = QtCore.QTextStream(file)
-            self.textEdit.setText(stream.readAll())
-            '''
-            *********
-            Your Code in case the user chose to encrypt a file
-            also you have to display in the console (use self.textEdit) to display there
-            *********
-            '''
+
+            self.soc.sender.send_file(file_path) ###
+            self.pushButton_2.setEnabled(False)
+            self.pushButton_3.setEnabled(False)
+
         if mode == 0:
             self.pushButton_4.setVisible(True)
             self.pushButton_5.setVisible(True)
+        self.close_log()
+        self.read_log()
 
     # Secure button Event
     def progress(self):
@@ -306,6 +308,8 @@ class Ui_Cryptology(object):
             self.label_2.setVisible(True)
             self.lineEdit.setVisible(True)
             self.pushButton_2.setVisible(True)
+            self.radioButton.setEnabled(False)
+            self.radioButton_2.setEnabled(False)
             ##############
             self.soc = Socket()
 
