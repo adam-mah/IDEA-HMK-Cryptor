@@ -6,7 +6,7 @@ KEY = int('006400c8012c019001f4025802bc0320', 16)
 
 # IDEA Example
 cryptor = IDEA(KEY)  # Initialize cryptor with 128bit key
-in_file = open("files/lorem.txt", "rb")
+in_file = open("files/song.mp3", "rb")
 out_file = open("files/encrypted.mp3", "w", encoding="utf-8")
 
 bytes8 = in_file.read(8)

@@ -127,10 +127,10 @@ class Ui_Cryptology(object):
         self.groupBox.setGeometry(QtCore.QRect(460, 30, 231, 81))
         self.groupBox.setObjectName("groupBox")
         self.radioButton = QtWidgets.QRadioButton(self.groupBox)
-        self.radioButton.setGeometry(QtCore.QRect(20, 20, 151, 18))
+        self.radioButton.setGeometry(QtCore.QRect(20, 20, 171, 18))
         self.radioButton.setObjectName("radioButton")
         self.radioButton_2 = QtWidgets.QRadioButton(self.groupBox)
-        self.radioButton_2.setGeometry(QtCore.QRect(20, 50, 171, 18))
+        self.radioButton_2.setGeometry(QtCore.QRect(20, 50, 191, 18))
         self.radioButton_2.setObjectName("radioButton_2")
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
         self.progressBar.setGeometry(QtCore.QRect(518, 200, 118, 23))
@@ -145,10 +145,10 @@ class Ui_Cryptology(object):
         self.groupBox_2.setGeometry(QtCore.QRect(458, 230, 231, 81))
         self.groupBox_2.setObjectName("groupBox_2")
         self.radioButton_3 = QtWidgets.QRadioButton(self.groupBox_2)
-        self.radioButton_3.setGeometry(QtCore.QRect(20, 20, 151, 18))
+        self.radioButton_3.setGeometry(QtCore.QRect(20, 20, 171, 18))
         self.radioButton_3.setObjectName("radioButton_3")
         self.radioButton_4 = QtWidgets.QRadioButton(self.groupBox_2)
-        self.radioButton_4.setGeometry(QtCore.QRect(20, 50, 171, 18))
+        self.radioButton_4.setGeometry(QtCore.QRect(20, 50, 191, 18))
         self.radioButton_4.setObjectName("radioButton_4")
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.lineEdit.setGeometry(QtCore.QRect(450, 340, 181, 20))
@@ -248,6 +248,8 @@ class Ui_Cryptology(object):
         self.radioButton_2.setEnabled(True)
         self.pushButton_2.setEnabled(True)
         self.pushButton_3.setEnabled(True)
+        global file_path
+        file_path = None
         self.progressBar.reset()
         self.textEdit.clear()
 
@@ -258,7 +260,7 @@ class Ui_Cryptology(object):
         # if the user chose to enter a message manually
         if self.radioButton_3.isChecked():
             send_text(self.lineEdit.text()+'\n', self.soc)###
-            self.soc.close_connection()
+            #self.soc.close_connection()
         # the user chose to encrypt a file
         else:
             # displaying file contents on gui
@@ -349,8 +351,6 @@ class Ui_Cryptology(object):
             self.radioButton_2.setEnabled(False)
             ##############
             self.soc = Socket()
-        global soc
-        soc = self.soc
         self.close_log()
         self.read_log()
 
@@ -384,7 +384,7 @@ class Ui_Cryptology(object):
         self.pushButton.setText(_translate("Cryptology", "Secure"))
         self.groupBox_2.setTitle(_translate("Cryptology", "Encrypt Message"))
         self.radioButton_3.setText(_translate("Cryptology", "Enter a message to cipher"))
-        self.radioButton_4.setText(_translate("Cryptology", "Browse a message from a file"))
+        self.radioButton_4.setText(_translate("Cryptology", "Browse for a file to encrypt"))
         self.pushButton_2.setText(_translate("Cryptology", "Encrypt"))
         self.pushButton_3.setText(_translate("Cryptology", "Browse"))
         self.pushButton_4.setText(_translate("Cryptology", "Reset"))
