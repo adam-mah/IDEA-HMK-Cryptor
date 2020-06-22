@@ -62,6 +62,45 @@ class Ui_DataView(object):
         QtCore.QMetaObject.connectSlotsByName(DataView)
         DataView.setFixedSize(DataView.size())
         DataView.setWindowModality(QtCore.Qt.ApplicationModal)
+        #***************************************************
+        # displaying the Sender File  contents on gui
+        if file_path == None:
+            file = QtCore.QFile("files/receiver_decrypted.txt")
+        else:
+            file = QtCore.QFile(file_path)
+        if not file.open(QtCore.QIODevice.ReadOnly):
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText(file.errorString())
+            x = msg.exec_()
+        stream = QtCore.QTextStream(file)
+        self.textEdit.setText(stream.readAll())
+        file.close()
+        #***************************************************
+        # displaying the Server  File  contents on gui
+        # change the path to the actual path of the server(socket)
+        file1 = QtCore.QFile("files/socket_data.txt")
+        if not file1.open(QtCore.QIODevice.ReadOnly):
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText(file1.errorString())
+            x = msg.exec_()
+        stream = QtCore.QTextStream(file1)
+        self.textEdit_2.setText(stream.readAll())
+        file1.close()
+        #***************************************************
+        # displaying the receiver File  contents on gui
+        # change the path to the actual path of the server(socket)
+        file2 = QtCore.QFile("files/receiver_decrypted.txt")
+        if not file2.open(QtCore.QIODevice.ReadOnly):
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText(file2.errorString())
+            x = msg.exec_()
+        stream = QtCore.QTextStream(file2)
+        self.textEdit_3.setText(stream.readAll())
+        file2.close()
+        #***************************************************
 
     def retranslateUi(self, DataView):
         _translate = QtCore.QCoreApplication.translate
@@ -69,14 +108,6 @@ class Ui_DataView(object):
         self.label.setText(_translate("DataView", "Sender"))
         self.label_2.setText(_translate("DataView", "Server"))
         self.label_3.setText(_translate("DataView", "Receiver"))
-
-    def display_results(self):## file_path in sender, socket_data in Server, receiver_decrypted in Receiver
-        f = open(file_path, "r")
-        #stream = QtCore.QTextStream(QtCore.QFile(file_path))
-        line = f.readLine()
-        while line:
-            self.textEdit.append(line)
-            line = f.readLine()
 
 
 class Ui_Cryptology(object):
@@ -213,6 +244,10 @@ class Ui_Cryptology(object):
         self.pushButton_2.setVisible(False)
         self.pushButton_4.setVisible(False)
         self.pushButton_5.setVisible(False)
+        self.radioButton.setEnabled(True)
+        self.radioButton_2.setEnabled(True)
+        self.pushButton_2.setEnabled(True)
+        self.pushButton_3.setEnabled(True)
         self.progressBar.reset()
         self.textEdit.clear()
 
@@ -223,6 +258,7 @@ class Ui_Cryptology(object):
         # if the user chose to enter a message manually
         if self.radioButton_3.isChecked():
             send_text(self.lineEdit.text()+'\n', self.soc)###
+            self.soc.close_connection()
         # the user chose to encrypt a file
         else:
             # displaying file contents on gui
@@ -235,6 +271,7 @@ class Ui_Cryptology(object):
                 mode = 1
 
             self.soc.sender.send_file(file_path) ###
+            self.soc.close_connection()
             self.pushButton_2.setEnabled(False)
             self.pushButton_3.setEnabled(False)
 
@@ -312,7 +349,8 @@ class Ui_Cryptology(object):
             self.radioButton_2.setEnabled(False)
             ##############
             self.soc = Socket()
-
+        global soc
+        soc = self.soc
         self.close_log()
         self.read_log()
 
@@ -361,7 +399,6 @@ class Ui_Cryptology(object):
 
 if __name__ == "__main__":
     import sys
-
     soc = 0
     app = QtWidgets.QApplication(sys.argv)
     Cryptology = QtWidgets.QMainWindow()

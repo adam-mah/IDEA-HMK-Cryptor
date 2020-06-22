@@ -157,7 +157,7 @@ if __name__ == "__main__":
     signer = DSA()
     M = input("Insert a message to sign: ")
     r, s = signer.sign(M)
-    keys = signer.get_keys()#Public keys tuple
+    keys = signer.get_keys()  # Public keys tuple
     p, q, g, pkey = keys
     print("Message: {0}\nSignature pair:\nr sign: {1}\ns sign: {2}\nKey values:\np: {3}\nq: {4}\ng: {5}\n"
           "Public key y: {6}".format(M, r, s, p, q, g, pkey))

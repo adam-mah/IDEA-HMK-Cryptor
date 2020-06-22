@@ -96,13 +96,13 @@ class IDEA:
 
     def encrypt(self, plain_text=''):
         if self.log:
-            print("-------ENCRYPTING ["+ plain_text+"]-------")
+            print("-------ENCRYPTING [" + plain_text + "]-------")
         plain_text = get_pt_block(plain_text)
         return self.calculate_cipher(self.enc_sub_keys, plain_text)
 
     def decrypt(self, cipher_text=''):
         if self.log:
-            print("-------DECRYPTING ["+ cipher_text+"]-------")
+            print("-------DECRYPTING [" + cipher_text + "]-------")
         cipher_text = get_cipher_block(cipher_text)
         res = self.calculate_cipher(self.dec_sub_keys, cipher_text)
         res = ''.join('0' * (16 - len(res))) + res
@@ -139,13 +139,12 @@ def get_cipher_block(cipher_text):  # 4 Blocks 16 bit each
 
 if __name__ == "__main__":
     KEY = int('006400c8012c019001f4025802bc0320', 16)
-    plain_text = 'HeyyAdam'
-    # IDEA Example
+    plain_text = 'ADAM'
     cryptor = IDEA()  # Initialize cryptor with 128bit key
     cipher_text = cryptor.encrypt(plain_text)
+    print(''.join([chr(int(''.join(c), 16)) for c in zip(cipher_text[0::2], cipher_text[1::2])]))
     deciphered_text = cryptor.decrypt(cipher_text)
-    print(
-        "Original text = {0}\nEncryption key = {3}\nCiphered text = {1}\nDeciphered text = {2}".format(plain_text,
-                                                                                                       cipher_text,
-                                                                                                       deciphered_text,
-                                                                                                       cryptor.key))
+    print("Original text = {0}\nEncryption key = {3}\nCiphered text = {1}\nDeciphered text = {2}".format(plain_text,
+                                                                                                         cipher_text,
+                                                                                                         deciphered_text,
+                                                                                                         cryptor.key))

@@ -1,3 +1,5 @@
+import secrets
+
 import numpy as np
 import sympy
 
@@ -94,9 +96,9 @@ class HMKnapsack():
         """
         public_key = []
         for i in range(0, len(self.w)):
-            public_key.append(np.mod(self.w[i] * self.r, self.q))
+            public_key.append(self.w[i] * self.r % self.q)
 
-        public_key = list(map(int, public_key))  # For some reason the list gets a float numbers inserted... removing
+        #public_key = list(map(int, public_key))  # For some reason the list gets a float numbers inserted... removing
         # this line will crash the code on large input
 
         return public_key
@@ -157,8 +159,9 @@ if __name__ == "__main__":
     # cipher_text = hmk_encrypt(plain_text, b)  # Encrypted plain text
     # decrypted_cipher_text = hmk_decrypt(cipher_text, w, q, r)  # Decrypted cipher
     # print("Encrypted message: {0} \nDecrypted message: {1}".format(cipher_text, decrypted_cipher_text))
-
-    hmkCryptor = HMKnapsack(len('123456'))
-    cipher_text = hmkCryptor.encrypt('123456', hmkCryptor.get_public_key())
+    KEY_SIZE = 128
+    KEY = str(secrets.randbits(KEY_SIZE))
+    hmkCryptor = HMKnapsack(KEY_SIZE)
+    cipher_text = hmkCryptor.encrypt(KEY, hmkCryptor.get_public_key())
     decrypted_cipher_text = hmkCryptor.decrypt(cipher_text)
-    print("Encrypted message: {0} \nDecrypted message: {1}".format(cipher_text, decrypted_cipher_text))
+    print("Original message:  {0}\nEncrypted message: {1} \nDecrypted message: {2}".format(KEY, cipher_text, decrypted_cipher_text))
