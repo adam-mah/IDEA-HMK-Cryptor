@@ -111,6 +111,9 @@ class Ui_DataView(object):
 
 
 class Ui_Cryptology(object):
+    def __init__(self):
+        self.soc = None
+
     def setupUi(self, Cryptology):
         Cryptology.setObjectName("Cryptology")
         Cryptology.resize(738, 494)
@@ -260,6 +263,7 @@ class Ui_Cryptology(object):
         # if the user chose to enter a message manually
         if self.radioButton_3.isChecked():
             send_text(self.lineEdit.text()+'\n', self.soc)###
+            self.pushButton_5.setVisible(False)
             #self.soc.close_connection()
         # the user chose to encrypt a file
         else:
@@ -276,10 +280,10 @@ class Ui_Cryptology(object):
             self.soc.close_connection()
             self.pushButton_2.setEnabled(False)
             self.pushButton_3.setEnabled(False)
+            self.pushButton_5.setVisible(True)
 
         if mode == 0:
             self.pushButton_4.setVisible(True)
-            self.pushButton_5.setVisible(True)
         self.close_log()
         self.read_log()
 
