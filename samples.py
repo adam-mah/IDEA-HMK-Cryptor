@@ -31,7 +31,7 @@ while True:
 hmkCryptor = HMKnapsack(len(plain_text))
 cipher_text = hmkCryptor.encrypt(plain_text, hmkCryptor.get_public_key())
 decrypted_cipher_text = hmkCryptor.decrypt(cipher_text)
-print("Encrypted message: {0} \nDecrypted message: {1}".format(cipher_text, decrypted_cipher_text))
+print("Original message: {0}\nEncrypted message: {1} \nDecrypted message: {2}".format(plain_text, cipher_text, decrypted_cipher_text))
 
 # DSA
 print("\n\n---------DSA---------")

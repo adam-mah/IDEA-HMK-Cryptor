@@ -18,15 +18,15 @@ class Sender:
             self.idea_cryptor = IDEA(KEY)  # Initializing IDEA encryptor with KEY value
         ciphered_IDEA_key = HMKnapsack.encrypt(str(self.idea_cryptor.key),
                                                self.hmk_pkey)  # Encrypting IDEA Key with HMK public key
-        print("Key {1} was generated successfully and encrypted and signed\n"
-              "Sending signature and encrypted IDEA Key [{0}...]".format(str(ciphered_IDEA_key)[:10],
-                                                                         hex(self.idea_cryptor.key)))
-        print("Encryption keys were generated successfully")
+        print(
+            "Key {1} was generated successfully, signed and encrypted\nSigned Key: {2}\nEncryption keys were generated successfully\n"
+            "Sending signature and encrypted IDEA Key [{0}...]".format(str(ciphered_IDEA_key)[:10],
+                                                                       hex(self.idea_cryptor.key),
+                                                                       hex(self.idea_cryptor.key)))
         print("\n------SERVER------")
         print('-> Received encrypted IDEA key and signature, sending to receiver')
         socket.receiver.exchange_keys(ciphered_IDEA_key, self.sign_message(str(self.idea_cryptor.key)),
                                       self.signer.get_keys())
-
 
     def send(self, M):
         print("\n------SENDER------")

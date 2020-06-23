@@ -296,7 +296,7 @@ class Ui_Cryptology(object):
             if self.lineEdit_2.text() != "":
 
                 custom_key = str(self.lineEdit_2.text())
-                if len(custom_key) == 16:
+                if len(custom_key) == 32:
                     try:
                         custom_key = int(custom_key, 16)
                         self.soc = Socket(custom_key)
@@ -320,19 +320,19 @@ class Ui_Cryptology(object):
                     except:
                         msg = QMessageBox()
                         msg.setIcon(QMessageBox.Critical)
-                        msg.setText("Invalid 16 digit HEX key!")
+                        msg.setText("Invalid 32 digit HEX key!")
                         x = msg.exec_()
                         self.lineEdit_2.clear()
                 else:
                     msg = QMessageBox()
                     msg.setIcon(QMessageBox.Critical)
-                    msg.setText("Invalid 16 digit HEX key!")
+                    msg.setText("Invalid 32 digit HEX key!")
                     x = msg.exec_()
                     self.lineEdit_2.clear()
             else:
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Critical)
-                msg.setText("Insert 16 digit HEX Key!")
+                msg.setText("Insert 32 digit HEX Key!")
                 x = msg.exec_()
                 self.lineEdit_2.clear()
         # Random IDEA Key is chosen
