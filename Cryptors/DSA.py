@@ -1,7 +1,7 @@
 from random import randrange
-# from hashlib import sha1
 from gmpy2 import xmpz, to_binary, powmod, is_prime
 from Crypto.Hash import SHA
+
 import sympy
 
 
@@ -75,8 +75,6 @@ class DSA:
             g = powmod(h, exp, p)
             if g > 1:
                 break
-
-        # g = generate_g(p, q)
         return p, q, g
 
     def sign(self, M):

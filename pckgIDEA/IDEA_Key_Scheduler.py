@@ -1,4 +1,11 @@
 import sympy
+
+__author__ = "Adam Mahameed"
+__copyright__ = "2020 HMK-IDEA-Cryptor"
+__credits__ = ["Adam Mahameed"]
+__license__ = "MIT"
+__email__ = "adam.mah315@gmail.com"
+
 """ PSEUDO for Key-Scheduler adam.mah315@gmail.com
 Key1 1101 1100 0110 1111 0011 1111 0101 1001
 Shifted Key1 0001 1011 1100 1111 1101 0110 0111 0111
@@ -31,7 +38,6 @@ SHIFT_BITS = 25
 ROUNDS = 9  # Round up the number, NO HALVES
 
 
-
 class IDEA_Key_Scheduler:
     def __init__(self, key_int):
         self.key_int = key_int
@@ -41,7 +47,7 @@ class IDEA_Key_Scheduler:
             (val << r_bits % max_bits) & (2 ** max_bits - 1) | \
             ((val & (2 ** max_bits - 1)) >> (max_bits - (r_bits % max_bits)))
 
-        #self.mulInv = lambda x: sympy.mod_inverse(x, 2 ** BLOCK_SIZE + 1)
+        # self.mulInv = lambda x: sympy.mod_inverse(x, 2 ** BLOCK_SIZE + 1)
         self.addInv = lambda x: (0x10000 - x) & 0xFFFF
 
     def mulInv(self, x):
@@ -63,10 +69,9 @@ class IDEA_Key_Scheduler:
             t1 = int((t1 + q * t0) & 0xffff)
 
     def encryption_key_schedule(self):
-        key_bin_list = get_key_bin_list(self.key_int)
-        self.enc_sub_keys_list.append(key_bin_list[:SUB_KEYS])
+        key_bin_list = get_key_bin_list(self.key_int)  # Returns 8 blocks of 16-bits
+        self.enc_sub_keys_list.append(key_bin_list[:SUB_KEYS])  # Take first round 6 sub-keys
 
-        # print("HEX New Sub key[0]: " + ' '.join([str(hex(int(elem, 2)))[2:] for elem in key_bin_list[:SUB_KEYS]]))
         self.key_int = self.shift(self.key_int, SHIFT_BITS, KEY_SIZE)  # Make new shifted key
         to_remove = 6  # SUB_KEYS
         for i in range(0, ROUNDS - 1):
