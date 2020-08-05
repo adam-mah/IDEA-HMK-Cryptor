@@ -1,9 +1,3 @@
-__author__ = "Adam Mahameed, Karam Abu Mokh"
-__copyright__ = "2020 HMK-IDEA-Cryptor"
-__credits__ = ["Adam Mahameed", "Karam Abu Mokh"]
-__license__ = "MIT"
-__email__ = "adam.mah315@gmail.com"
-
 from random import randrange
 from gmpy2 import xmpz, to_binary, powmod, is_prime
 from Crypto.Hash import SHA
