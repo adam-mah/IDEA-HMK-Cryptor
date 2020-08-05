@@ -1,3 +1,6 @@
+"""
+This is for test purpose only
+"""
 from Cryptors.DSA import DSA
 from Cryptors.HMKnapsack import HMKnapsack
 from pckgIDEA.IDEA import IDEA

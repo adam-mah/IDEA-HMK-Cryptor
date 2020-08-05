@@ -1,3 +1,9 @@
+__author__ = "Adam Mahameed"
+__copyright__ = "2020 HMK-IDEA-Cryptor"
+__credits__ = ["Adam Mahameed"]
+__license__ = "MIT"
+__email__ = "adam.mah315@gmail.com"
+
 from server.receiver import Receiver
 from server.sender import Sender
 import inspect
