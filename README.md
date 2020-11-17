@@ -23,7 +23,7 @@ GUI and Output:
   
   
   
- By Adam Mahameed, Karam Abu Mokh  
+ By Adam Mahameed, Karam Abu Mokh, Alaa Grable
    
    MIT LICENSE:
    
